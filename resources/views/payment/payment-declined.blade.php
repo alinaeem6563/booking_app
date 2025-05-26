@@ -9,6 +9,15 @@
         <div class="max-w-3xl mx-auto">
             <!-- Declined Card -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+                @if (session('success'))
+                <div class="alert alert-success mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            
+            <div id="payment-error" style="display: none; color: red; font-weight: bold; margin-top: 1rem;"></div>
+
                 <!-- Declined Header -->
                 <div class="bg-red-50 p-6 border-b border-red-100">
                     <div class="flex items-center justify-center mb-4">
@@ -19,6 +28,21 @@
                         </div>
                     </div>
                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">Payment Declined</h1>
+                    <p class="text-gray-600 text-center">@if (session('error'))
+                        <div class="alert alert-danger mb-4">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+        
+                    @if ($errors->any())
+                        <div class="alert alert-danger mb-4">
+                            <ul class="list-disc pl-5">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif</p>
                     <p class="text-gray-600 text-center">We were unable to process your payment. Your booking has not been confirmed.</p>
                 </div>
                 

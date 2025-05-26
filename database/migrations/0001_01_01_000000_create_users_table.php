@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -18,12 +19,48 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('password');
-            $table->string('account_type'); // e.g. customer, provider
+            $table->string('account_type'); // e.g. user, provider, Admin
             $table->boolean('terms_condition')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
+        // Insert default users right after the table is created
+        DB::table('users')->insert([
+            [
+                'first_name'       => 'Test',
+                'last_name'        => 'Admin',
+                'email'            => 'admin@example.com',
+                'phone'            => '1234567891',
+                'password'         => bcrypt('12345678'), 
+                'account_type'     => 'admin',
+                'terms_condition'  => true,
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ],
+            [
+                'first_name'       => 'Test',
+                'last_name'        => 'User',
+                'email'            => 'user@example.com',
+                'phone'            => '1234567890',
+                'password'         => bcrypt('12345678'), 
+                'account_type'     => 'user',
+                'terms_condition'  => true,
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ],
+            [
+                'first_name'       => 'Test',
+                'last_name'        => 'Provider',
+                'email'            => 'provider@example.com',
+                'phone'            => '0987654321',
+                'password'         => bcrypt('12345678'),
+                'account_type'     => 'provider',
+                'terms_condition'  => true,
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ],
+        ]);
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

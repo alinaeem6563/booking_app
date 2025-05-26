@@ -19,13 +19,16 @@ return new class extends Migration
             $table->string('service_category'); // Category of the service
             $table->integer('service_duration'); // Duration in hours (1 to 24)
             $table->decimal('service_price', 8, 2); // Price of the service
+            $table->decimal('service_fee', 8, 2)->default(0); // service fee
+            $table->decimal('tax', 8, 2)->default(0); // tax
             $table->string('service_location'); // Location of the service
             $table->string('service_image')->nullable(); // Main service image (optional)
             $table->boolean('service_status')->default(false); // Service status (active/inactive)
             $table->json('work_gallery')->nullable(); // Gallery of work (stored as JSON array)
             $table->json('service_offerings')->nullable(); // Service offerings (stored as JSON)
             $table->string('qualifications_certifications')->nullable(); // Qualifications and certifications
-            $table->string('additional_services')->nullable(); // Additional services provided (optional)
+            $table->json('additional_services')->nullable(); // Additional services provided (optional)
+            $table->json('faqs')->nullable(); // Service offerings (stored as JSON)
             $table->timestamps(); // Created and updated timestamps
         });
     }

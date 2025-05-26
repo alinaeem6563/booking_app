@@ -1,8 +1,7 @@
 @extends('layouts.app')
+@section('content')
  <div x-data="{ sidebarOpen: window.innerWidth >= 768 }" class="min-h-screen flex">
-    
     @include('navigation.sidebar')
-
     <!-- Main Content -->
     <div class="flex-1 p-4 ">
             <!-- Top Header -->
@@ -379,3 +378,4 @@
             </main>
         </div>
     </div>
+@endsection

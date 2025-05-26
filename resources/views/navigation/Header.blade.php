@@ -27,9 +27,11 @@
                 @endguest
                 @auth
                 <div class="hidden md:flex items-center">
+                    <a href="{{ route('dashboard') }}" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Dashboard</a>
+
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button href="" class="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">LogOut</button>
+                        <button class="ml-4 inline-flex items-center mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">LogOut</button>
                     </form>
                 </div>
                 @endauth
@@ -66,6 +68,8 @@
                 @endguest
                 @auth
                 <div class="flex items-center px-4">
+                    <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-base font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Dashboard</a>
+
                      <form method="POST" action="{{ route('logout') }}">
         @csrf
                     <button href="{{ route('logout') }}"  class="block px-3 py-2 text-base font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">LogOut</button>

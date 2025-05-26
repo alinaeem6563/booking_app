@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\DayOff;
 use App\Models\Service;
+use App\Models\TimeSlot;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,8 +20,12 @@ class ProviderAppointmentController extends Controller
     public function index()
     {
         $services = Service::with('provider')->get();
+        
+        
         return view('provider.view-all-providers', compact('services'));
     }
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -30,6 +39,7 @@ class ProviderAppointmentController extends Controller
      */
     public function store(Request $request)
     { 
+        // dd($request);
         // Validate the incoming request
         $validated = $request->validate([
             'service_name' => 'required|string|max:255',
@@ -38,20 +48,28 @@ class ProviderAppointmentController extends Controller
             'service_category' => 'required|string',
             'service_duration' => 'required|integer|min:1|max:24',
             'service_price' => 'required|numeric|min:0',
+            'service_fee' => 'required|numeric|min:0', 
+            'tax' => 'required|numeric|min:0', 
             'service_location' => 'required|string',
             'service_image' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
-            'work_gallery' => 'nullable|array', // Allow array for multiple files
-            'work_gallery.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240', // Each file should be an image
-            'service_offered' => ['array'],
-            'service_offered.*' => ['required', 'string', 'max:255'],
-            'service_offered_description' => ['array'],
-            'service_offered_description.*' => ['required', 'string', ],
-            'service_offered_price' => ['array'],
-            'service_offered_price.*' => ['required', 'numeric', 'min:0'],
-            'additional_services' => ['nullable', 'string', 'max:255'],
+            'work_gallery' => 'nullable|array',
+            'work_gallery.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'Service_Offered' => ['array'],
+            'Service_Offered.*' => ['required', 'string', 'max:255'],
+            'Service_Offered_description' => ['array'],
+            'Service_Offered_description.*' => ['required', 'string'],
+            'Service_Offered_price' => ['array'],
+            'Service_Offered_price.*' => ['required', 'numeric', 'min:0'],
+            'additional_services' => ['nullable', 'array'],
+            'additional_services.*.name' => ['required', 'string', 'max:255'],
+            'additional_services.*.price' => ['required', 'numeric', 'min:0'],
+            'questions' => ['array'],
+            'questions.*' => ['required', 'string'],
+            'answers' => ['array'],
+            'answers.*' => ['required', 'string'],
         ]);
 
-        // Add provider_id and service_status to the validated data
+        // Add provider_id and service_status
         $validated['provider_id'] = Auth::id();
         $validated['service_status'] = $request->has('service_status');
 
@@ -64,40 +82,52 @@ class ProviderAppointmentController extends Controller
         if ($request->hasFile('work_gallery')) {
             $galleryPaths = [];
             foreach ($request->file('work_gallery') as $image) {
-                // Store each image and add the path to the array
                 $galleryPaths[] = $image->store('services/gallery', 'public');
             }
-            // Store the gallery paths as a JSON-encoded string
             $validated['work_gallery'] = json_encode($galleryPaths);
         }
 
-        // Handle service offerings (Service_Offered, Service_Offered_description, Service_Offered_price)
+        // Handle service offerings
         $offerings = [];
-        if ($request->has('service_offered')) {
-            foreach ($request->input('service_offered') as $index => $offeredService) {
+        if ($request->has('Service_Offered')) {
+            foreach ($request->input('Service_Offered') as $index => $offeredService) {
                 $offerings[] = [
+                    'service_id' => uniqid('svc_', true),
                     'service_name' => $offeredService,
-                    'description' => $request->input('service_offered_description')[$index] ?? '',
-                    'price' => $request->input('service_offered_price')[$index] ?? 0,
+                    'description' => $request->input('Service_Offered_description')[$index] ?? '',
+                    'price' => $request->input('Service_Offered_price')[$index] ?? 0,
                 ];
             }
         }
-        $validated['service_offerings'] = json_encode($offerings); // Store offerings as JSON
+    
+        $validated['service_offerings'] = json_encode($offerings);
+
+        // Handle FAQs
+        $faqs = [];
+        if ($request->has('questions')) {
+            foreach ($request->input('questions') as $index => $question) {
+                $faqs[] = [
+                    'questions' => $question,
+                    'answers' => $request->input('answers')[$index] ?? '',
+                ];
+            }
+        }
+        $validated['faqs'] = $faqs;
 
         // Handle additional services
-        $validated['additional_services'] = $request->input('additional_services') ?? null;
+        $validated['additional_services'] = $request->has('additional_services')
+            ? json_encode($request->input('additional_services'))
+            : null;
 
         try {
-            // Create a new service entry in the database
             Service::create($validated);
-
-            // Redirect or return a response
+            
             return redirect()->back()->with('success', 'Service created successfully!');
         } catch (\Exception $e) {
-            // Handle error if something goes wrong
             return back()->withErrors(['error' => 'There was an error creating the service: ' . $e->getMessage()]);
         }
     }
+
 
 
     /**
@@ -108,11 +138,26 @@ class ProviderAppointmentController extends Controller
     {
         $service = Service::with(['provider', 'reviews.user'])->findOrFail($id);
 
-        $averageRating = number_format($service->reviews->avg('rating'), 1); // e.g., 4.8
-        $totalReviews = $service->reviews->count(); // e.g., 128
+        $averageRating = number_format($service->reviews->avg('rating'), 1);
+        $totalReviews = $service->reviews->count();
 
-        return view('provider.provider-detail', compact('service', 'averageRating', 'totalReviews'));
+        $providerId = $service->provider->id;
+
+        // Get all providers excluding the current one
+        $allProviders = User::where('account_type', 'provider')->inRandomOrder()->limit(3)->get();
+
+        // Pick 3 random providers from the full collection
+        $suggestedProviders = $allProviders->random(min(3, $allProviders->count()));
+
+        return view('provider.provider-detail', compact(
+            'service',
+            'averageRating',
+            'totalReviews',
+            'suggestedProviders'
+        ));
     }
+
+
 
 
     /**
@@ -138,4 +183,5 @@ class ProviderAppointmentController extends Controller
     {
         //
     }
+   
 }

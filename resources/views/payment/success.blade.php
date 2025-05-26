@@ -1,6 +1,7 @@
 @extends('layouts.app')
     <title>BookEase - Payment Successful</title>
 
+    @section('content')
     <!-- Header -->
  @include('navigation.Header')
 
@@ -9,6 +10,19 @@
         <div class="max-w-3xl mx-auto">
             <!-- Success Card -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+                @if (session('success'))
+                <div class="alert alert-success mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger mb-4">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+
                 <!-- Success Header -->
                 <div class="bg-green-50 p-6 border-b border-green-100">
                     <div class="flex items-center justify-center mb-4">
@@ -18,8 +32,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">Payment Successful!</h1>
-                    <p class="text-gray-600 text-center">Your booking has been confirmed and your payment has been processed successfully.</p>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2"><p>{{ $message }}</p></h1>
+                    <p class="text-gray-600 text-center">Your booking is pending for confirmation from service provider once confirmed you will get email and your payment has been processed successfully.</p>
                 </div>
                 
                 <!-- Booking Details -->
@@ -30,22 +44,22 @@
                         <div class="bg-gray-50 rounded-lg p-4 mb-6">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="text-sm text-gray-500">Booking Reference</div>
-                                <div class="text-lg font-semibold text-gray-900">#BE-2023-05678</div>
+                                <div class="text-lg font-semibold text-gray-900">#BE-2023-000{{$billingInfo['id']}}</div>
                             </div>
                             <div class="border-t border-gray-200 pt-4">
                                 <div class="text-sm text-gray-500 mb-1">A confirmation email has been sent to:</div>
-                                <div class="font-medium">johndoe@example.com</div>
+                                <div class="font-medium">{{ $billingInfo['email'] }}</div>
                             </div>
                         </div>
                         
                         <!-- Provider Info -->
                         <div class="flex items-center mb-6">
                             <div class="h-16 w-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xl font-bold mr-4">
-                                SA
+                                {{ strtoupper(substr($booking->provider->first_name, 0, 1) . substr($booking->provider->last_name, 0, 1)) }}
                             </div>
                             <div>
-                                <h3 class="font-semibold text-gray-900">Sarah Anderson</h3>
-                                <p class="text-sm text-gray-500">Professional Cleaner</p>
+                                <h3 class="font-semibold text-gray-900">{{ $booking->provider->first_name ?? 'N/A' }} {{ $booking->provider->last_name ?? 'N/A' }}</h3>
+                                <p class="text-sm text-gray-500">{{ $booking->service->service_name ?? 'N/A' }}</p>
                             </div>
                         </div>
                         
@@ -53,50 +67,67 @@
                         <div class="mb-6">
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Service:</span>
-                                <span class="text-gray-900 font-medium">Regular Home Cleaning</span>
+                                <span class="text-gray-900 font-medium">{{ $booking->service->service_name ?? 'N/A' }}</span>
                             </div>
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Date:</span>
-                                <span class="text-gray-900 font-medium">May 10, 2023</span>
+                                <span class="text-gray-900 font-medium">{{ $booking->start_time->format('Y-m-d') }}</span>
                             </div>
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Time:</span>
-                                <span class="text-gray-900 font-medium">10:00 AM</span>
+                                <span class="text-gray-900 font-medium">{{ $booking->start_time->format('h:i A') }} - {{ $booking->end_time->format('h:i A') }}</span>
                             </div>
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Duration:</span>
-                                <span class="text-gray-900 font-medium">3 hours</span>
+                                <span class="text-gray-900 font-medium">{{ $booking->duration }} hours</span>
                             </div>
                             <div class="flex justify-between mb-2">
                                 <span class="text-gray-600">Address:</span>
-                                <span class="text-gray-900 font-medium">123 Main St, Santa Cruz, CA 95060</span>
+                                <span class="text-gray-900 font-medium">{{ $billingInfo['address'] }}, {{ $billingInfo['city'] }}, {{ $billingInfo['province'] }}, {{ $billingInfo['zip_code'] }}, {{ $billingInfo['country'] }}</span>
                             </div>
                         </div>
                         
-                        <!-- Price Breakdown -->
-                        <div class="border-t border-gray-200 pt-4 mb-6">
-                            <h3 class="font-semibold mb-3">Payment Summary</h3>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Regular Cleaning (3 hours)</span>
-                                <span class="text-gray-900">$75.00</span>
+                       <!-- Price Breakdown -->
+                            <div class="border-t border-gray-200 pt-4 mb-6">
+
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-gray-600">{{ $booking->service->service_name }}
+                                        ({{ $booking->duration }}
+                                        hour{{ $booking->duration > 1 ? 's' : '' }})</span>
+                                    <span
+                                        class="text-gray-900">${{ number_format($servicePrice * $booking->duration, 2) }}</span>
+                                </div>
+
+                                @foreach ($selectedAdds as $name)
+                                    @php $name = trim($name); @endphp
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-gray-600">{{ $name }}</span>
+                                        <span class="text-gray-900">
+                                            ${{ number_format($additionalServicePrices[$name] ?? 0, 2) }}
+                                        </span>
+                                    </div>
+                                @endforeach
+
+
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-gray-600">Service Fee</span>
+                                    <span class="text-gray-900">${{ $booking->service->service_fee }}</span>
+                                </div>
+
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-gray-600">Tax
+                                        ({{ number_format($booking->service->tax), 2 }}%)</span>
+                                    <span
+                                        class="text-gray-900">${{ ($booking->total_amount * $booking->service->tax) / (100 + $booking->service->tax) }}</span>
+                                </div>
+
+                                <div class="flex justify-between font-bold text-lg mt-4 pt-4 border-t border-gray-200">
+                                    <span>Total</span>
+                                    <span>${{ $booking->total_amount }}</span>
+                                </div>
+
                             </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Window Cleaning</span>
-                                <span class="text-gray-900">$15.00</span>
-                            </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Service Fee</span>
-                                <span class="text-gray-900">$10.00</span>
-                            </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Tax</span>
-                                <span class="text-gray-900">$8.00</span>
-                            </div>
-                            <div class="flex justify-between font-bold text-lg mt-4 pt-4 border-t border-gray-200">
-                                <span>Total Paid</span>
-                                <span>$108.00</span>
-                            </div>
-                        </div>
+
                         
                         <!-- Payment Method -->
                         <div class="mb-6">
@@ -180,3 +211,4 @@
 
     <!-- Footer -->
  @include('navigation.Footer')
+ @endsection

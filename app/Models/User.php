@@ -50,10 +50,24 @@ class User extends Authenticatable
     }
     public function services()
     {
-        return $this->hasMany(Service::class);
+        return $this->hasMany(Service::class, 'provider_id');
     }
     public function review()
     {
         return $this->hasMany(Review::class);
+    }
+    public function timeSlots()
+    {
+        return $this->hasMany(TimeSlot::class, 'provider_id');
+    }
+
+    public function daysOff()
+    {
+        return $this->hasMany(DayOff::class, 'provider_id');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
     }
 }
