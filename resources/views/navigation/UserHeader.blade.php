@@ -8,7 +8,7 @@
                                     d="M4 6h16M4 12h16M4 18h7" />
                             </svg>
                         </button>
-                        <h1 class="text-xl font-bold text-gray-800 ml-2 md:ml-0">My Dashboard</h1>
+                        <h1 class="text-xl font-bold text-gray-800 ml-2 md:ml-0">{{auth()->user()->last_name }} {{auth()->user()->first_name}} Dashboard</h1>
                     </div>
 
                     <div class="flex items-center">

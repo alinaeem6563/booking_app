@@ -189,6 +189,7 @@
                     </div>
                 </div>
 
+                <!-- Make sure SweetAlert2 is included -->
                 <script>
                     // Get DOM elements
                     const openModalBtn = document.getElementById('openModalBtn');
@@ -200,61 +201,46 @@
 
                     // Function to open the modal
                     function openModal() {
-                        // Make modal visible
                         modalOverlay.classList.remove('invisible', 'opacity-0');
                         modalOverlay.classList.add('opacity-100');
-
-                        // Scale up the modal
                         modalContainer.classList.remove('scale-95');
                         modalContainer.classList.add('scale-100');
-
-                        // Prevent scrolling on the body
                         document.body.classList.add('overflow-hidden');
                     }
 
                     // Function to close the modal
                     function closeModal() {
-                        // Fade out the modal
                         modalOverlay.classList.remove('opacity-100');
                         modalOverlay.classList.add('opacity-0');
-
-                        // Scale down the modal
                         modalContainer.classList.remove('scale-100');
                         modalContainer.classList.add('scale-95');
-
-                        // Hide the modal after animation completes
                         setTimeout(() => {
                             modalOverlay.classList.add('invisible');
-                            // Re-enable scrolling on the body
                             document.body.classList.remove('overflow-hidden');
                         }, 300);
                     }
 
-                    // Event listeners
-                    openModalBtn.addEventListener('click', openModal);
-                    closeModalBtn.addEventListener('click', closeModal);
-                    cancelBtn.addEventListener('click', closeModal);
+                    // Open/close modal listeners
+                    openModalBtn?.addEventListener('click', openModal);
+                    closeModalBtn?.addEventListener('click', closeModal);
+                    cancelBtn?.addEventListener('click', closeModal);
 
-                    // Example action for confirm button
-                    confirmBtn.addEventListener('click', () => {
-                        alert('Confirmed!');
-                        closeModal();
-                    });
 
-                    // Close modal when clicking outside
-                    modalOverlay.addEventListener('click', (e) => {
+                    // Click outside modal to close
+                    modalOverlay?.addEventListener('click', (e) => {
                         if (e.target === modalOverlay) {
                             closeModal();
                         }
                     });
 
-                    // Close modal with Escape key
+                    // ESC key to close modal
                     document.addEventListener('keydown', (e) => {
                         if (e.key === 'Escape' && !modalOverlay.classList.contains('invisible')) {
                             closeModal();
                         }
                     });
                 </script>
+
                 {{-- form script --}}
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {

@@ -7,6 +7,8 @@
 
         <title>{{ config('app.name', 'BookEase') }}</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- FullCalendar CSS -->
  @yield('head')
     @vite('resources/css/app.css')
@@ -17,4 +19,41 @@
       <!-- FullCalendar JS -->
  @yield('script')
     </body>
+    <script>
+        @if(session('success'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 3000
+            });
+        @endif
+    
+        @if(session('error'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: "{{ session('error') }}",
+                showConfirmButton: false,
+                timer: 3000
+            });
+        @endif
+    
+        @if($errors->any())
+            @foreach ($errors->all() as $error)
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: "{{ $error }}",
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            @endforeach
+        @endif
+    </script>
+    
 </html>

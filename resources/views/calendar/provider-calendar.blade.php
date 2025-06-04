@@ -32,7 +32,40 @@
                     Add Day Off
                 </button>
             </div>
-            <div id='calendar'></div>
+            <div class="max-w-3xl mx-auto mt-10 p-4 bg-white shadow rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4">Check Available Time Slots</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Service Dropdown -->
+                    <div>
+                        <label for="main-service" class="block text-sm font-medium text-gray-700">Select Service</label>
+                        <select id="main-service"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500  focus:border-indigo-500 ">
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Picker -->
+                    <div>
+                        <label for="selected-date" class="block text-sm font-medium text-gray-700">Select Date</label>
+                        <input type="date" id="selected-date"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500  focus:border-indigo-500 ">
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="flex items-end">
+                        <button id="search-button"
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Search Slots
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div id="slots-result" class="mt-6"></div>
+            </div>
+
+
 
             <!-- Modal Add Time Slots -->
             @include('calendar.provider-add-time-slot-modal')
@@ -47,72 +80,111 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const calendarEl = document.getElementById('calendar');
-
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek',
-                events: @json($events),
-                timeZone: 'local',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-                },
-                slotMinTime: "08:00:00",
-                slotMaxTime: "18:00:00",
-                allDaySlot: false,
-                height: 'auto',
-
-                eventSources: [{
-                        url: '/calendar/daysoff',
-                        display: 'background'
-                    },
-                    {
-                        url: '/calendar/slots'
-                    }
-                ],
-
-                selectOverlap: function(event) {
-                    return event.display !== 'background';
-                },
-
-                eventDidMount: function(info) {
-                    if (info.event.title === "Booked") {
-                        info.el.style.pointerEvents = 'none';
-                        info.el.style.opacity = '0.6';
-                    }
-                },
-
-                eventClick: function(info) {
-                    if (info.event.title === "Available") {
-                        alert(
-                            `Book slot:\n${info.event.start.toLocaleTimeString()} - ${info.event.end.toLocaleTimeString()}`);
-                    }
-                },
-
-                // ✅ This is the new part that shows provider/service/status
-                eventContent: function(arg) {
-                    
-                    const service = arg.event.extendedProps.service_name || 'Service';
-                    const provider = arg.event.extendedProps.provider_name || 'Provider';
-
-                    const status = arg.event.title;
-
-                    return {
-                        html: `
-                        <div class="text-xs p-1 leading-tight">
-                            <div><strong>Provider:</strong> ${provider}</div>
-                            <div><strong>Service:</strong> ${service}</div>
-                            <div class="${status === 'Available' ? 'text-green-600' : 'text-red-600'} font-bold">
-                                ${status}
-                            </div>
-                        </div>
-                    `
-                    };
+            const providerId = '{{ auth()->id() }}'; // Blade injection
+    
+            // Load services for the provider
+            fetch(`/provider/services/${providerId}`)
+                .then(res => res.json())
+                .then(services => {
+                    const select = document.getElementById('main-service');
+                    select.innerHTML = '<option value="">-- Select --</option>';
+                    services.forEach(service => {
+                        const option = document.createElement('option');
+                        option.value = service.id;
+                        option.textContent = service.service_name;
+                        select.appendChild(option);
+                    });
+                });
+    
+            document.getElementById('search-button').addEventListener('click', function() {
+                const serviceId = document.getElementById('main-service').value;
+                const date = document.getElementById('selected-date').value;
+                const resultBox = document.getElementById('slots-result');
+    
+                resultBox.innerHTML = ''; // Clear previous
+    
+                if (!serviceId || !date) {
+                    resultBox.innerHTML =
+                        `<div class="text-red-600 font-medium">Please select both service and date.</div>`;
+                    return;
                 }
+    
+                // Check if selected date is a day off
+                fetch(`/calendar/daysoff?service_id=${serviceId}`)
+                    .then(res => res.json())
+                    .then(dayOffs => {
+                        let isDayOff = false;
+    
+                        const selectedDate = new Date(date);
+                        const selectedDayIndex = selectedDate.getDay(); // 0 = Sunday
+    
+                        dayOffs.forEach(off => {
+                            if (off.daysOfWeek && off.daysOfWeek.includes(selectedDayIndex)) {
+                                isDayOff = true;
+                            } else if (off.start) {
+                                const offDate = new Date(off.start).toISOString().split('T')[0];
+                                if (offDate === date) {
+                                    isDayOff = true;
+                                }
+                            }
+                        });
+    
+                        if (isDayOff) {
+                            const dayOffMessage = document.createElement('div');
+                            dayOffMessage.className = 'text-yellow-600 font-medium mb-2';
+                            dayOffMessage.textContent = 'This is a day off.';
+                            resultBox.appendChild(dayOffMessage);
+                        }
+    
+                        // Now fetch slots
+                        const start = `${date}T00:00:00`;
+                        const end = `${date}T23:59:59`;
+    
+                        fetch(`/calendar/slots?service_id=${serviceId}&start=${start}&end=${end}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (!data.length) {
+                                    const msg = document.createElement('div');
+                                    msg.className = 'text-gray-600 font-medium';
+                                    msg.textContent = 'No slots added for this date.';
+                                    resultBox.appendChild(msg);
+                                    return;
+                                }
+    
+                                const ul = document.createElement('ul');
+                                ul.className = "space-y-2";
+    
+                                data.forEach(slot => {
+                                    const startTime = new Date(slot.start).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+                                    const endTime = new Date(slot.end).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+                                    const li = document.createElement('li');
+                                    li.className =
+                                        `p-3 rounded shadow text-white ${slot.title === 'Booked' ? 'bg-red-500' : 'bg-green-500'}`;
+                                    li.textContent = `${slot.title}: ${startTime} - ${endTime}`;
+                                    ul.appendChild(li);
+                                });
+    
+                                resultBox.appendChild(ul);
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                resultBox.innerHTML =
+                                    `<div class="text-red-600 font-medium">Failed to load slots.</div>`;
+                            });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        resultBox.innerHTML =
+                            `<div class="text-red-600 font-medium">Failed to check day off status.</div>`;
+                    });
             });
-
-            calendar.render();
         });
     </script>
+    
 @endsection

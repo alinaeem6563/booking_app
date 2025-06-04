@@ -17,7 +17,12 @@ class BookingController extends Controller
 
     }
 
-
+public function UpcomingBookings(){
+return view('booking.upcoming-bookings');
+}
+public function BookingRequests(){
+return view('provider.booking-requests');
+}
     public function store(Request $request)
     {
         $request->validate([
@@ -76,5 +81,22 @@ class BookingController extends Controller
         }
         return redirect()->route('payment.show', ['booking' => $booking->id])
             ->with('success', 'Booking created successfully!');
+    }
+    public function accept($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->status = 'confirmed';
+        $booking->save();
+
+        return redirect()->back()->with('success', 'Booking confirmed successfully.');
+    }
+
+    public function cancel($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->status = 'canceled';
+        $booking->save();
+
+        return redirect()->back()->with('success', 'Booking canceled successfully.');
     }
 }

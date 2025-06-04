@@ -4,26 +4,33 @@ namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Category;
 use App\Models\DayOff;
+use App\Models\SavedProvider;
 use App\Models\Service;
 use App\Models\TimeSlot;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AvailabilityService;
 
 class ProviderAppointmentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        $services = Service::with('provider')->get();
-        
-        
+        $services = Service::with('provider')->get()->map(function ($service) {
+            $service->availability_status = (new AvailabilityService)->getTodayStatus($service->id);
+            return $service;
+        });
+
         return view('provider.view-all-providers', compact('services'));
     }
+
 
 
     /**
@@ -31,7 +38,8 @@ class ProviderAppointmentController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all(); // Make sure this is defined
+        return view('services.add-new-service', compact('categories'));
     }
 
     /**
@@ -45,7 +53,7 @@ class ProviderAppointmentController extends Controller
             'service_name' => 'required|string|max:255',
             'service_description' => 'nullable|string',
             'qualifications_certifications' => 'string|max:255',
-            'service_category' => 'required|string',
+            'category_id' => 'required|exists:category,id',
             'service_duration' => 'required|integer|min:1|max:24',
             'service_price' => 'required|numeric|min:0',
             'service_fee' => 'required|numeric|min:0', 
@@ -138,6 +146,9 @@ class ProviderAppointmentController extends Controller
     {
         $service = Service::with(['provider', 'reviews.user'])->findOrFail($id);
 
+        // Add availability status
+        $service->availability_status = (new AvailabilityService)->getTodayStatus($service->id);
+
         $averageRating = number_format($service->reviews->avg('rating'), 1);
         $totalReviews = $service->reviews->count();
 
@@ -145,7 +156,12 @@ class ProviderAppointmentController extends Controller
 
         // Get all providers excluding the current one
         $allProviders = User::where('account_type', 'provider')->inRandomOrder()->limit(3)->get();
-
+        $isSavedByUser = false;
+        if (Auth::check()) {
+            $isSavedByUser = SavedProvider::where('user_id', Auth::id())
+                ->where('service_id', $service->id)
+                ->exists();
+        }
         // Pick 3 random providers from the full collection
         $suggestedProviders = $allProviders->random(min(3, $allProviders->count()));
 
@@ -153,7 +169,8 @@ class ProviderAppointmentController extends Controller
             'service',
             'averageRating',
             'totalReviews',
-            'suggestedProviders'
+            'suggestedProviders',
+            'isSavedByUser'
         ));
     }
 

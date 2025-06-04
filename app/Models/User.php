@@ -54,8 +54,9 @@ class User extends Authenticatable
     }
     public function review()
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(Review::class, 'user_id'); 
     }
+
     public function timeSlots()
     {
         return $this->hasMany(TimeSlot::class, 'provider_id');
@@ -69,5 +70,13 @@ class User extends Authenticatable
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+    public function savedProviders()
+    {
+        return $this->hasMany(SavedProvider::class);
     }
 }

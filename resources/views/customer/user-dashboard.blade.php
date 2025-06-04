@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@section('head')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
 @section('content')
     <div x-data="{ sidebarOpen: window.innerWidth >= 768 }" class="min-h-screen flex">
         @include('navigation.sidebar')
@@ -146,15 +149,32 @@
                                         <img src="{{ asset('storage/' . $sp->service_image) }}" alt="Service Image"
                                             class="w-full h-full object-cover">
                                         <div class="absolute top-2 right-2">
-                                            <button
-                                                class="p-1.5 bg-white rounded-full shadow-sm text-gray-400 hover:text-red-500 focus:outline-none">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                </svg>
-                                            </button>
+                                            @php
+                                            $isSaved = false;
+                                            if (Auth::check()) {
+                                                $isSaved = \App\Models\SavedProvider::where('user_id', Auth::id())
+                                                    ->where('service_id', $sp->id)
+                                                    ->exists();
+                                            }
+                                        @endphp
+                                        
+                                        <button
+                                            class="save-provider-btn absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm focus:outline-none"
+                                            data-service-id="{{ $sp->id }}"
+                                            data-is-saved="{{ $isSaved ? '1' : '0' }}"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5 heart-icon transition duration-200 ease-in-out {{ $isSaved ? 'text-red-500 fill-red-500' : 'text-gray-400 fill-none' }}"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                            </svg>
+                                        </button>
+                                        
                                         </div>
+                                        
                                     </div>
                                     <div class="p-4">
                                         <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ $sp->service_name }}</h3>
@@ -268,4 +288,7 @@
             </main>
         </div>
     </div>
+@endsection
+@section('script')
+@vite(['resources/js/save-provider.js']);
 @endsection

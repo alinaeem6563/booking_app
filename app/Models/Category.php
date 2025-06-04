@@ -8,4 +8,8 @@ class Category extends Model
 {
     protected $table='category';
    protected $fillable=['category_name','category_description','category_slug','category_icon_link','category_status'];
+    public function services()
+    {
+        return $this->hasMany(Service::class, 'category_id');
+    }
 }

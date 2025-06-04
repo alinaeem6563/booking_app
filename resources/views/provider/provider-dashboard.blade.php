@@ -21,72 +21,11 @@
         @include('navigation.sidebar')
         @include('services.add-new-service')
         @include('services.edit-service')
+
         <!-- Main Content -->
-        <div class="flex-1 p-4 ">
+        <div class="flex-1 p-4">
             <!-- Top Header -->
-            <header class="bg-white shadow-sm sticky top-0 z-10">
-                <div class="flex items-center justify-between h-16 px-4 md:px-6 lg:px-8">
-                    <div class="flex items-center">
-                        <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 focus:outline-none md:hidden">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16M4 18h7" />
-                            </svg>
-                        </button>
-                        <h1 class="text-xl font-bold text-gray-800 ml-2 md:ml-0">Provider Dashboard</h1>
-                    </div>
-
-                    <div class="flex items-center">
-                        <button class="flex items-center text-gray-500 hover:text-gray-700 focus:outline-none mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <span class="ml-1 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-medium">3</span>
-                        </button>
-
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center focus:outline-none">
-                                <div
-                                    class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-                                    {{ strtoupper(substr(auth()->user()->first_name, 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name, 0, 1)) }}
-
-                                </div>
-                                <span
-                                    class="ml-2 text-sm font-medium text-gray-700 hidden md:block">{{ auth()->user()->first_name }}
-                                    {{ auth()->user()->last_name }}
-                                </span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1 text-gray-500"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-
-                            <div x-show="open" @click.away="open = false"
-                                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
-                                style="display: none;">
-                                <a href="{{ route('profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your
-                                    Profile</a>
-                                <a href="#"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        Logout
-                                    </button>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
+            @include('navigation.UserHeader')
             <!-- Dashboard Content -->
             <main class="p-4 md:p-6 lg:p-8">
                 <!-- Stats Cards -->
@@ -102,7 +41,7 @@
                             </div>
                             <div class="ml-4">
                                 <h2 class="text-sm font-medium text-gray-600">Total Clients</h2>
-                                <p class="text-lg font-semibold text-gray-800">{{$totalClients}}</p>
+                                <p class="text-lg font-semibold text-gray-800">{{ $totalClients }}</p>
                             </div>
                         </div>
                     </div>
@@ -118,7 +57,7 @@
                             </div>
                             <div class="ml-4">
                                 <h2 class="text-sm font-medium text-gray-600">Completed Bookings</h2>
-                                <p class="text-lg font-semibold text-gray-800">{{$providerCompletedBookings}}</p>
+                                <p class="text-lg font-semibold text-gray-800">{{ $providerCompletedBookings }}</p>
                             </div>
                         </div>
                     </div>
@@ -134,7 +73,7 @@
                             </div>
                             <div class="ml-4">
                                 <h2 class="text-sm font-medium text-gray-600">Pending Bookings</h2>
-                                <p class="text-lg font-semibold text-gray-800">{{$providerUpComingBooking}}</p>
+                                <p class="text-lg font-semibold text-gray-800">{{ $providerUpComingBooking }}</p>
                             </div>
                         </div>
                     </div>
@@ -150,7 +89,7 @@
                             </div>
                             <div class="ml-4">
                                 <h2 class="text-sm font-medium text-gray-600">Total Earnings</h2>
-                                <p class="text-lg font-semibold text-gray-800">${{$totalEarning}}</p>
+                                <p class="text-lg font-semibold text-gray-800">${{ $totalEarning }}</p>
                             </div>
                         </div>
                     </div>
@@ -241,7 +180,12 @@
                                                     class="px-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                                     {{ $booking->status }}
                                                 </span>
-                                            @else
+                                            @elseif($booking->status == 'canceled')
+                                                <span
+                                                    class="px-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    {{ $booking->status }}
+                                                </span>
+                                                @else
                                                 <span
                                                     class="px-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                     {{ $booking->status }}
@@ -263,8 +207,16 @@
                                             @endif
                                         </td>
                                         <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button class="text-green-600 hover:text-green-900 mr-3">Accept</button>
-                                            <button class="text-red-600 hover:text-red-900">Decline</button>
+                                            <form action="{{ route('booking.accept', $booking->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Accept</button>
+                                            </form>
+                                            
+                                            <form action="{{ route('booking.cancel', $booking->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to cancel?')">Delete</button>
+                                            </form>
+                                            
                                         </td>
                                     </tr>
                                 @empty
@@ -276,7 +228,7 @@
                 </div>
 
                 <!-- Services Management Section -->
-                <div class="bg-white rounded-lg shadow-sm mb-8">
+                <div class="bg-white rounded-lg shadow-sm mb-8" id="my_services">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">My Services</h2>
@@ -484,7 +436,7 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         stroke-width="2"
                                                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274
-                                                                                4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                                    4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                                 </svg>
                                                             </button>
                                                             <button class="text-gray-400 hover:text-gray-500">
@@ -493,7 +445,7 @@
                                                                     stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0
-                                                                                00-2 2v12a2 2 0 002 2z" />
+                                                                                    00-2 2v12a2 2 0 002 2z" />
                                                                 </svg>
                                                             </button>
                                                         </div>

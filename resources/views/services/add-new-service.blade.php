@@ -59,7 +59,9 @@
                                                class="text-left block text-sm font-medium text-gray-700">Service Name
                                                <span class="text-red-600">*</span></label>
                                            <input type="text" name="service_name" id="service_name" required
+                                               value="{{ old('service_name') }}"
                                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+
                                        </div>
                                        <!-- Service Description -->
                                        <div>
@@ -67,7 +69,8 @@
                                                class="text-left block text-sm font-medium text-gray-700">Service
                                                Description <span class="text-red-600">*</span></label>
                                            <textarea name="service_description" id="service_description" rows="4" required
-                                               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                                               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('service_description') }}</textarea>
+
                                        </div>
                                        <!-- Qualifications & Certifications -->
                                        <div>
@@ -77,22 +80,24 @@
                                            <p class="text-left text-gray-400 text-[12px]">Add comma "," for separation.
                                            </p>
                                            <textarea name="qualifications_certifications" id="qualifications_certifications" rows="3"
-                                               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                                               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ old('qualifications_certifications') }}</textarea>
                                        </div>
                                        <!-- Service Category -->
                                        <div>
-                                           <label for="service_category"
+                                           <label for="category_id"
                                                class="text-left block text-sm font-medium text-gray-700">Service
                                                Category<span class="text-red-600">*</span></label>
-                                           <select name="service_category" id="service_category" required
+                                           <select name="category_id" id="category_id" required
                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                                <option value="">Select a category</option>
-                                               <option value="Home Cleaning">Home Cleaning</option>
-                                               <option value="Plumbing">Plumbing</option>
-                                               <option value="Electrical">Electrical</option>
-                                               <option value="Personal Training">Personal Training</option>
-                                               <option value="Massage Therapy">Massage Therapy</option>
-                                               <option value="Home Renovation">Home Renovation</option>
+
+                                               @foreach ($categories as $category)
+                                                   <option value="{{ $category->id }}"
+                                                       {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                                       {{ $category->category_name }}
+                                                   </option>
+                                               @endforeach
+
                                            </select>
                                        </div>
                                        <!-- Service Price -->
@@ -108,7 +113,8 @@
                                                <input type="number" name="service_price" id="service_price"
                                                    min="0" step="0.01" required
                                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
-                                                   placeholder="0.00">
+                                                   placeholder="0.00" value="{{ old('service_price') }}">
+
                                                <div
                                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                    <span class="text-gray-500 sm:text-sm">/hr</span>
@@ -122,14 +128,23 @@
                                                Duration</label>
                                            <select name="service_duration" id="service_duration"
                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                               <option value="1">1 hour</option>
-                                               <option value="2">2 hours</option>
-                                               <option value="3">3 hours</option>
-                                               <option value="4">4 hours</option>
-                                               <option value="5">5 hours</option>
-                                               <option value="6">6 hours</option>
-                                               <option value="7">7 hours</option>
-                                               <option value="8">8 hours</option>
+                                               <option value="1" {{ old('duration') == 1 ? 'selected' : '' }}>1
+                                                   hour</option>
+                                               <option value="2" {{ old('duration') == 2 ? 'selected' : '' }}>2
+                                                   hours</option>
+                                               <option value="3" {{ old('duration') == 3 ? 'selected' : '' }}>3
+                                                   hours</option>
+                                               <option value="4" {{ old('duration') == 4 ? 'selected' : '' }}>4
+                                                   hours</option>
+                                               <option value="5" {{ old('duration') == 5 ? 'selected' : '' }}>5
+                                                   hours</option>
+                                               <option value="6" {{ old('duration') == 6 ? 'selected' : '' }}>6
+                                                   hours</option>
+                                               <option value="7" {{ old('duration') == 7 ? 'selected' : '' }}>7
+                                                   hours</option>
+                                               <option value="8" {{ old('duration') == 8 ? 'selected' : '' }}>8
+                                                   hours</option>
+
                                            </select>
                                        </div>
                                    </div>
@@ -141,8 +156,10 @@
                                                class="text-left block text-sm font-medium text-gray-700">Service
                                                Location</label>
                                            <input type="text" name="service_location" id="service_location"
+                                               value="{{ old('service_location') }}"
                                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                               placeholder="eg:Santa Cruz, CA">
+                                               placeholder="eg: Santa Cruz, CA">
+
                                        </div>
                                        <!-- Service Image -->
                                        <div>
@@ -212,9 +229,11 @@
                                                    <span class="text-gray-500 sm:text-sm">$</span>
                                                </div>
                                                <input type="number" name="service_fee" id="service_fee"
-                                                   min="0" step="0.01" required
+                                                   value="{{ old('service_fee') }}" min="0" step="0.01"
+                                                   required
                                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
                                                    placeholder="0.00">
+
                                                <div
                                                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                    <span class="text-gray-500 sm:text-sm">/service</span>
@@ -231,8 +250,8 @@
                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                    <span class="text-gray-500 sm:text-sm">$</span>
                                                </div>
-                                               <input type="number" name="tax" id="tax"
-                                                   min="0" step="0.01" required
+                                               <input type="number" name="tax" id="tax" min="0"
+                                                   step="0.01" required value="{{ old('tax') }}"
                                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
                                                    placeholder="0.00">
                                                <div
@@ -364,8 +383,10 @@
                                                        Description</label>
                                                    <input type="text" name="additional_services[0][name]"
                                                        id="service_name_0"
+                                                       value="{{ old('additional_services.0.name') }}"
                                                        class="focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                                        placeholder="e.g., Express Delivery">
+
                                                </div>
                                                <div>
                                                    <label for="service_price_0"
@@ -377,8 +398,10 @@
                                                        </div>
                                                        <input type="text" name="additional_services[0][price]"
                                                            id="service_price_0"
+                                                           value="{{ old('additional_services.0.price') }}"
                                                            class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
                                                            placeholder="0.00" aria-describedby="price-currency">
+
                                                        <div
                                                            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                            <span class="text-gray-500 sm:text-sm"
@@ -419,8 +442,10 @@
                                                        Question
                                                    </label>
                                                    <input type="text" name="questions[]" id="questions[0]"
-                                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                       placeholder="Enter your question here" required>
+                                                   value="{{ old('questions.0') }}"
+                                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                   placeholder="Enter your question here" required>
+                                               
                                                </div>
 
                                                <div>
@@ -429,8 +454,9 @@
                                                        Answer
                                                    </label>
                                                    <textarea name="answers[]" id="answers[0]" rows="3"
-                                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                       placeholder="Enter your answer here" required></textarea>
+                                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                   placeholder="Enter your answer here" required>{{ old('answers.0') }}</textarea>
+                                               
                                                </div>
                                            </div>
                                        </div>
@@ -466,6 +492,6 @@
                </div>
            </div>
 
-       @section('script')
-        @vite(['resources/js/add-new-service.js'])
-       @endsection
+           @section('script')
+               @vite(['resources/js/add-new-service.js'])
+           @endsection

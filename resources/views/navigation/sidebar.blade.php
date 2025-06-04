@@ -96,11 +96,32 @@
                      Create New User
                  </a>
              @endif
+             @if(auth()->user()->account_type === 'admin')
+             <div class="mt-6 mb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Categories
+            </div>
+            <a href="{{route('categories.create')}}"
+            class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="h-5 w-5 mr-3 text-gray-500" fill="none">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
+              </svg>
+              
+              Add Categories
+        </a>
+            <a href="{{route('categories.index')}}"
+            class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"  class="h-5 w-5 mr-3 text-gray-500" fill="none">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
+              </svg>
+              
+              All Categories
+        </a>
+             @endif
+             @if (auth()->user()->account_type === 'provider')
              <div class="mt-6 mb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                  Services
              </div>
-             @if (auth()->user()->account_type === 'provider')
-                 <a href="#"
+                 <a href="#my_services"
                      class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
@@ -110,7 +131,7 @@
                      My Services
                  </a>
 
-                 <a href="#"
+                 <a href="#openServiceModal"
                      class="flex items-center px-4 py-3 mt-1 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
@@ -130,7 +151,7 @@
                      </svg>
                      Find Services
                  </a>
-                 <a href="#"
+                 <a href="{{route('all-saved-providers')}}"
                      class="flex items-center px-4 py-3 mt-1 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
@@ -140,11 +161,26 @@
                      Saved Providers
                  </a>
              @endif
+             @if (auth()->user()->account_type === 'provider')
+             <div class="mt-6 mb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                 Reviews
+             </div>
+             <a href="{{route('reviews.index')}}"
+             class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+              </svg>
+              
+             All reviews
+             <span
+                 class="ml-auto bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-medium">3</span>
+         </a>
+             @endif
+             @if (auth()->user()->account_type === 'provider')
              <div class="mt-6 mb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                  Bookings
              </div>
-             @if (auth()->user()->account_type === 'provider')
-                 <a href="#"
+                 <a href="{{route('all-booking-requests')}}"
                      class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
@@ -157,7 +193,7 @@
                  </a>
              @endif
              @if (auth()->user()->account_type === 'user')
-                 <a href="#"
+                 <a href="{{route('upcoming-bookings')}}"
                      class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
@@ -188,7 +224,7 @@
              <div class="mt-6 mb-2 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                  Payments
              </div>
-             <a href="#" class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
+             <a href="{{route('payment-methods')}}" class="flex items-center px-4 py-3 text-sm rounded-lg text-gray-700 hover:bg-gray-100">
                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-500" fill="none"
                      viewBox="0 0 24 24" stroke="currentColor">
                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

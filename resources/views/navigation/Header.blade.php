@@ -16,7 +16,7 @@
                 <nav class="hidden md:flex items-center space-x-8">
                     <a href="/" class="text-gray-600 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Home</a>
                     <a href="{{route('providers.index')}}" class="text-gray-600 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Providers</a>
-                    <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Categories</a>
+                    <a href="{{route('all-categories')}}" class="text-gray-600 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Categories</a>
                     <a href="#" class="text-gray-600 hover:text-indigo-600 px-3 py-2 text-sm font-medium">How it Works</a>
                 </nav>
                 @guest
@@ -31,7 +31,7 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="ml-4 inline-flex items-center mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">LogOut</button>
+                        <button class="ml-4 inline-flex items-center  px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">LogOut</button>
                     </form>
                 </div>
                 @endauth
@@ -56,7 +56,7 @@
             <div class="pt-2 pb-3 space-y-1">
                 <a href="/" class="block px-3 py-2 text-base font-medium text-indigo-600 border-l-4 border-indigo-500 bg-indigo-50">Home</a>
                 <a href="{{route('providers.index')}}" class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 hover:border-indigo-500 border-l-4 border-transparent">Providers</a>
-                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 hover:border-indigo-500 border-l-4 border-transparent">Categories</a>
+                <a href="{{route('all-categories')}}" class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 hover:border-indigo-500 border-l-4 border-transparent">Categories</a>
                 <a href="#" class="block px-3 py-2 text-base font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 hover:border-indigo-500 border-l-4 border-transparent">How it Works</a>
             </div>
             <div class="pt-4 pb-3 border-t border-gray-200">

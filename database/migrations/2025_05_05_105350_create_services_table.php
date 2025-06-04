@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('provider_id')->constrained('users')->onDelete('cascade'); // Foreign key for provider
             $table->string('service_name'); // Name of the service
             $table->longText('service_description')->nullable(); // Description of the service
-            $table->string('service_category'); // Category of the service
+            $table->foreignId('category_id')->constrained('category')->onDelete('cascade');; // Category of the service
             $table->integer('service_duration'); // Duration in hours (1 to 24)
             $table->decimal('service_price', 8, 2); // Price of the service
             $table->decimal('service_fee', 8, 2)->default(0); // service fee

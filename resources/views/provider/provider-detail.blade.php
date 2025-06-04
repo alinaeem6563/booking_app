@@ -1,12 +1,15 @@
 @extends('layouts.app')
 
-<title>BookEase - Sarah Anderson | Professional Cleaner</title>
-<style>
-    #calendar {
-        max-width: 900px;
-        margin: 40px auto;
-    }
-</style>
+@section('head')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>BookEase - Sarah Anderson | Professional Cleaner</title>
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+    </style>
+@endsection
 <!-- Header -->
 @include('navigation.Header')
 
@@ -56,22 +59,22 @@
 <!-- Main Content -->
 <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
     @if ($errors->any())
-    <div class="mb-4 p-4 rounded-md bg-red-100 text-red-800 border border-red-300">
-        <ul class="list-disc pl-5 space-y-1">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+        <div class="mb-4 p-4 rounded-md bg-red-100 text-red-800 border border-red-300">
+            <ul class="list-disc pl-5 space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-@if (session('success'))
-    <div class="mb-4 p-4 rounded-md bg-gray-100 text-gray-800 border border-gray-300">
-        {{ session('success') }}
-    </div>
-@endif
+    @if (session('success'))
+        <div class="mb-4 p-4 rounded-md bg-gray-100 text-gray-800 border border-gray-300">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="flex flex-col lg:flex-row gap-8">
-        
+
         <!-- Left Column - Provider Details -->
         <div class="w-full lg:w-2/3">
             <!-- Provider Header -->
@@ -125,7 +128,8 @@
                                 </path>
                             </svg>
 
-                            <span class="ml-2 text-gray-700"> {{ $averageRating }} ({{ $totalReviews }} reviews)</span>
+                            <span class="ml-2 text-gray-700"> {{ $averageRating }} ({{ $totalReviews }}
+                                reviews)</span>
                         </div>
                         <div class="flex items-center text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-gray-500" fill="none"
@@ -144,7 +148,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span class="text-green-600 font-medium">Available Today</span>
+
+                            <span
+                                class="text-green-600 font-medium
+                                    @if ($service->availability_status === 'Available') text-green-600
+                                    @elseif($service->availability_status === 'Fully Booked') text-red-600
+                                    @else text-gray-600 @endif">
+                                {{ $service->availability_status }}
+                            </span>
                         </div>
                         <div class="flex items-center text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-gray-500" fill="none"
@@ -165,15 +176,7 @@
                         <a href="#gallery" class="text-indigo-600 hover:text-indigo-800 font-medium">Gallery</a>
                     </div>
                     <div class="flex flex-wrap gap-4">
-                        <button
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Book Now
-                        </button>
+
                         <a href="tel:{{ $service->provider->phone }}"
                             class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
@@ -185,14 +188,17 @@
                         </a>
 
                         <button
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            class="save-provider-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            data-service-id="{{ $service->id }}" data-is-saved="{{ $isSavedByUser ? '1' : '0' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 heart-icon transition duration-300 ease-in-out {{ $isSavedByUser ? 'text-red-500 fill-red-500' : 'text-gray-400 fill-none' }}"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                             Save
                         </button>
+
 
                         <button
                             class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -307,21 +313,18 @@
             <!-- Add Review Form -->
             <div id="add-review" class="bg-white rounded-xl shadow-sm overflow-hidden mt-6 p-6">
                 <h2 class="text-xl font-bold mb-6">Write a Review</h2>
-               
+
                 <form action="{{ route('reviews.store') }}" method="POST" class="space-y-6">
                     @csrf
                     <input type="hidden" name="service_id" value="{{ $service->id }}">
-                
+
                     <!-- Rating Selection -->
                     <div x-data="{ rating: 0 }" class="flex items-center space-x-1" id="rating-stars">
                         <template x-for="i in 5" :key="i">
-                            <button type="button"
-                                class="rating-star p-1 focus:outline-none"
-                                @click="rating = i"
+                            <button type="button" class="rating-star p-1 focus:outline-none" @click="rating = i"
                                 :aria-label="'Rate ' + i + ' stars'">
                                 <svg :class="i <= rating ? 'text-yellow-400' : 'text-gray-300'"
-                                    class="h-8 w-8 hover:text-yellow-400 transition-colors"
-                                    fill="currentColor"
+                                    class="h-8 w-8 hover:text-yellow-400 transition-colors" fill="currentColor"
                                     viewBox="0 0 20 20">
                                     <path
                                         d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -330,28 +333,28 @@
                         </template>
                         <input type="hidden" name="rating" :value="rating" x-model.number="rating">
                     </div>
-                
+
                     <!-- Review Text -->
                     <div>
-                        <label for="review-text" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                        <label for="review-text" class="block text-sm font-medium text-gray-700 mb-2">Your
+                            Review</label>
                         <textarea id="review-text" name="review_text" rows="4"
                             class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                             placeholder="Share your experience with this service provider..." required></textarea>
                     </div>
-                
+
                     <!-- Submit Button -->
                     @auth
                         <div class="flex justify-end">
                             <button type="submit"
                                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                :disabled="rating === 0"
-                                :class="{ 'opacity-50 cursor-not-allowed': rating === 0 }"
+                                :disabled="rating === 0" :class="{ 'opacity-50 cursor-not-allowed': rating === 0 }"
                                 id="submit-review-btn">
                                 Submit Review
                             </button>
                         </div>
                     @endauth
-                
+
                     @guest
                         <div class="flex justify-end">
                             <a href="{{ route('login') }}"
@@ -361,7 +364,7 @@
                         </div>
                     @endguest
                 </form>
-                
+
             </div>
             <div id="reviews" class="bg-white rounded-xl shadow-sm overflow-hidden mt-6 p-6">
                 <h2 class="text-xl font-bold mb-4">Customer Reviews</h2>
@@ -371,7 +374,8 @@
                         @foreach ($service->reviews as $index => $review)
                             <div class="{{ $index >= 3 ? 'hidden extra-review' : '' }} border-b pb-4">
                                 <div class="flex items-center mb-2">
-                                    <div class="font-semibold text-gray-800">{{ $review->user->first_name ?? 'User' }} {{ $review->user->last_name ?? 'Name' }}</div>
+                                    <div class="font-semibold text-gray-800">{{ $review->user->first_name ?? 'User' }}
+                                        {{ $review->user->last_name ?? 'Name' }}</div>
                                     <div class="ml-4 text-yellow-400">
                                         @for ($i = 1; $i <= 5; $i++)
                                             <svg class="inline-block w-4 h-4 {{ $review->rating >= $i ? 'text-yellow-400' : 'text-gray-300' }}"
@@ -448,75 +452,108 @@
                             <div class="text-2xl font-bold text-gray-900">${{ $service->service_price }}</div>
                             <div class="text-gray-500 ml-2">/ hour</div>
                         </div>
-                        <div class="flex items-center text-sm text-gray-500 mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-1" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Available today
-                        </div>
+                        @if ($service->availability_status === 'Available')
+                            <div class="flex items-center text-sm text-green-500 mb-4">
+                                <svg class="h-5 w-5 text-green-500 mr-1" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $service->availability_status }}
+                            </div>
+                        @elseif($service->availability_status === 'Fully Booked')
+                            <div class="flex items-center text-sm text-red-500 mb-4">
+                                <svg class="h-5 w-5 text-red-500 mr-1" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.75 9.75l4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $service->availability_status }}
+                            </div>
+                        @else
+                            <div class="flex items-center text-sm text-yellow-500 mb-4">
+                                <svg class="h-5 w-5 text-yellow-500 mr-1" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v3.75m0 3.75h.008v.008H12v-.008M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ $service->availability_status }}
+                            </div>
+                        @endif
+
                     </div>
                     <div class="p-6">
-                        <form>
+
+                        @if (session('success'))
+                            <div class="alert alert-success mb-4">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger mb-4">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-4">
+                                <ul class="list-disc pl-5">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('booking-store') }}" method="POST">
+                            @csrf
+
                             <!-- Service Type -->
                             <div class="mb-4">
                                 <label for="service" class="block text-sm font-medium text-gray-700 mb-1">Service
                                     Type</label>
-                                <select id="service" name="service"
+                                <select id="service" name="service_offering_id"
                                     class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                                    @php
-                                        $offerings = json_decode($service->service_offerings, true);
-                                    @endphp
-
-                                    @if (is_array($offerings))
-                                        @foreach ($offerings as $offering)
-                                            <option value="{{ $offering['service_id'] }}">{{ $offering['service_name'] }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-
-
+                                    @foreach (json_decode($service->service_offerings, true) as $offering)
+                                        <option value="{{ $offering['service_id'] }}"
+                                            data-price="{{ $offering['price'] }}">
+                                            {{ $offering['service_name'] }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
+                            <!-- Hidden inputs -->
+                            <input type="hidden" name="provider_id" value="{{ $service->provider->id }}">
+                            <input type="hidden" name="service_id" value="{{ $service->id }}">
+
                             <!-- Date/Booking Slots -->
                             <div class="mb-4">
-                                <label for="selected_slot_id" class="block text-sm font-medium text-gray-700 mb-1">Booking
-                                    Slots</label>
+                                <label for="selected_slot_id"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Date</label>
 
-                                <!-- Hidden inputs to store selected slot info -->
-                                <input type="hidden" id="selected_slot_id" name="slot_id">
-                                <input type="hidden" id="selected_slot_time" name="slot_time">
+                                <!-- Hidden inputs updated by calendar script -->
+                                <input type="hidden" name="slot_id" id="selected_slot_id">
+                                <input type="hidden" name="start_time" id="selected_start_time">
+                                <input type="hidden" name="end_time" id="selected_end_time">
+                                <input type="hidden" name="duration" id="duration">
+                                <input type="hidden" name="slot_time" id="selected_slot_time">
+
 
                                 <!-- Modal trigger button -->
                                 <button type="button" id="openServiceCalendarModalBtn"
                                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full ">
+                                    Available Dates
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    Available Slots
                                 </button>
 
                                 <!-- Calendar modal (included from Blade partial) -->
                                 @include('calendar.service-calendar-modal')
-                            </div>
-
-                            <!-- Address -->
-                            <div class="mb-4">
-                                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                <input type="text" id="address" name="address" placeholder="Enter your address"
-                                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-
-                            <!-- Special Requests -->
-                            <div class="mb-4">
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Special
-                                    Requests</label>
-                                <textarea id="notes" name="notes" rows="3" placeholder="Any special instructions or requests?"
-                                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
                             </div>
 
                             <!-- Additional Services -->
@@ -527,43 +564,33 @@
                                     @foreach (json_decode($service->additional_services, true) ?? [] as $additional)
                                         <label class="flex items-center">
                                             <input type="checkbox"
-                                                class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                                class="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4 additional-service"
+                                                data-price="{{ $additional['price'] }}" name="additional_services[]"
+                                                value="{{ $additional['name'] }}">
                                             <span class="ml-2 text-sm text-gray-700">
                                                 {{ $additional['name'] }} (+${{ $additional['price'] }})
                                             </span>
                                         </label>
                                     @endforeach
+
                                 </div>
                             </div>
 
+                            <div class="text-sm text-gray-600 mb-4" id="time-summary">
+                                <!-- Will be populated by JS -->
+                            </div>
 
                             <!-- Price Summary -->
                             <div class="border-t border-gray-200 pt-4 mb-6">
-                                @php
-                                    $offerings = json_decode($service->service_offerings, true);
-                                @endphp
 
-                                @if (is_array($offerings))
-                                    @foreach ($offerings as $offering)
-                                        <div class="flex justify-between mb-2">
-                                            <span class="text-gray-600">{{ $offering['service_name'] }}
-                                                ({{ $service->service_duration }} hours)
-                                            </span>
-                                            <span
-                                                class="text-gray-900">${{ $offering['price'] * $service->service_duration }}</span>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="text-gray-500">No service offerings available.</div>
-                                @endif
-
-                                <div class="flex justify-between mb-2">
-                                    <span class="text-gray-600">Service Fee</span>
-                                    <span class="text-gray-900">${{ $service->service_fee }}</span>
+                                <div id="price-summary">
+                                    <!-- Dynamically updated via JavaScript -->
                                 </div>
+
                                 <div class="flex justify-between font-bold text-lg mt-4">
                                     <span>Total</span>
-                                    <span>$85.00</span>
+                                    <input type="hidden" name="total_amount" id="total_amount_input" value="0">
+                                    <span id="total-amount">$00.00</span>
                                 </div>
                             </div>
 
@@ -584,6 +611,7 @@
 
                         </form>
                     </div>
+
                 </div>
             </div>
         @endguest
@@ -597,14 +625,35 @@
                                 <div class="text-2xl font-bold text-gray-900">${{ $service->service_price }}</div>
                                 <div class="text-gray-500 ml-2">/ hour</div>
                             </div>
-                            <div class="flex items-center text-sm text-gray-500 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-1"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Available today
-                            </div>
+                            @if ($service->availability_status === 'Available')
+                                <div class="flex items-center text-sm text-green-500 mb-4">
+                                    <svg class="h-5 w-5 text-green-500 mr-1" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{ $service->availability_status }}
+                                </div>
+                            @elseif($service->availability_status === 'Fully Booked')
+                                <div class="flex items-center text-sm text-red-500 mb-4">
+                                    <svg class="h-5 w-5 text-red-500 mr-1" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9.75 9.75l4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{ $service->availability_status }}
+                                </div>
+                            @else
+                                <div class="flex items-center text-sm text-yellow-500 mb-4">
+                                    <svg class="h-5 w-5 text-yellow-500 mr-1" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v3.75m0 3.75h.008v.008H12v-.008M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{ $service->availability_status }}
+                                </div>
+                            @endif
+
                         </div>
                         <div class="p-6">
 
@@ -747,18 +796,21 @@
     <!-- Similar Providers Section -->
     <div class="mt-8">
         <h2 class="text-2xl font-bold mb-6">Similar Providers You Might Like</h2>
-    
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @forelse($suggestedProviders as $sp)
-                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div
+                    class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <div class="relative">
-                        <img class="h-48 w-full object-cover"
-                            src="{{ asset('storage/' . $service->service_image) }}"
+                        <img class="h-48 w-full object-cover" src="{{ asset('storage/' . $service->service_image) }}"
                             alt="{{ $sp->first_name }}">
                         <div class="absolute top-0 right-0 m-2">
                             <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                               available today
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800
+@if ($service->availability_status === 'Available') bg-green-100 text-green-800
+@elseif($service->availability_status === 'Fully Booked') bg-red-100 text-red-800
+@else bg-gray-100 text-gray-800 @endif">
+                                {{ $service->availability_status }}
                             </span>
                         </div>
                     </div>
@@ -771,26 +823,32 @@
                                 </div>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-lg font-medium text-gray-900">{{ $sp->first_name }} {{ $sp->last_name }}</h3>
-                                <p class="text-sm text-gray-500">{{ $service->service_name  ?? 'Service Provider' }}</p>
+                                <h3 class="text-lg font-medium text-gray-900">{{ $sp->first_name }}
+                                    {{ $sp->last_name }}</h3>
+                                <p class="text-sm text-gray-500">{{ $service->service_name ?? 'Service Provider' }}
+                                </p>
                             </div>
                         </div>
                         <div class="mt-4 flex items-center">
                             @for ($i = 0; $i < 5; $i++)
-                                <svg class="h-5 w-5 {{ $i < round($averageRating ) ? 'text-yellow-400' : 'text-gray-300' }}"
-                                     fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921..."></path>
+                                <svg class="h-5 w-5 {{ $i < round($averageRating) ? 'text-yellow-400' : 'text-gray-300' }}"
+                                    fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                    </path>
                                 </svg>
                             @endfor
-                            <span class="ml-2 text-sm text-gray-500">{{ $averageRating }} ({{ $totalReviews }} reviews)</span>
+                            <span class="ml-2 text-sm text-gray-500">{{ $averageRating }} ({{ $totalReviews }}
+                                reviews)</span>
                         </div>
                         <div class="mt-4 border-t border-gray-200 pt-4 flex justify-between items-center">
                             <div>
                                 <p class="text-sm text-gray-500">Starting from</p>
-                                <p class="text-lg font-semibold text-gray-900">${{ $service->service_price ?? 'N/A' }}/hr</p>
+                                <p class="text-lg font-semibold text-gray-900">
+                                    ${{ $service->service_price ?? 'N/A' }}/hr</p>
                             </div>
                             <a href="{{ route('providers.show', $service->id) }}"
-                               class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
+                                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
                                 View Profile
                             </a>
                         </div>
@@ -801,62 +859,14 @@
             @endforelse
         </div>
     </div>
-    
+
 </main>
 
 <!-- Footer -->
 @include('navigation.Footer')
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Handle star rating selection
-            const stars = document.querySelectorAll(".rating-star");
-            const ratingInput = document.getElementById("rating-value");
 
-            if (stars.length && ratingInput) {
-                stars.forEach(star => {
-                    star.addEventListener("click", function() {
-                        const selectedRating = parseInt(this.dataset.value);
-                        ratingInput.value = selectedRating;
-
-                        stars.forEach(s => {
-                            const svg = s.querySelector("svg");
-                            if (parseInt(s.dataset.value) <= selectedRating) {
-                                svg.classList.remove("text-gray-300");
-                                svg.classList.add("text-yellow-400");
-                            } else {
-                                svg.classList.remove("text-yellow-400");
-                                svg.classList.add("text-gray-300");
-                            }
-                        });
-                    });
-                });
-            }
-
-            // Handle "View All Photos" button
-            const galleryBtn = document.getElementById("viewAllBtn");
-            if (galleryBtn) {
-                galleryBtn.addEventListener("click", function() {
-                    document.querySelectorAll(".extra-image").forEach(el => {
-                        el.classList.remove("hidden");
-                    });
-                    galleryBtn.style.display = "none";
-                });
-            }
-
-            // Handle "View All Reviews" button
-            const reviewBtn = document.getElementById("viewAllReviewsBtn");
-            if (reviewBtn) {
-                reviewBtn.addEventListener("click", function() {
-                    document.querySelectorAll(".extra-review").forEach(el => {
-                        el.classList.remove("hidden");
-                    });
-                    reviewBtn.style.display = "none";
-                });
-            }
-        });
-    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const serviceSelect = document.getElementById('service');
@@ -940,4 +950,9 @@
             additionalCheckboxes.forEach(cb => cb.addEventListener('change', updateTotalPrice));
         });
     </script>
+@endsection
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @vite(['resources/js/save-provider.js', 'resources/js/review.js','resources/js/booking-slot-alert.js']);
 @endsection
