@@ -39,12 +39,6 @@
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Complete Your Booking</h1>
-            @if (session('success'))
-                <div class="mb-4 text-green-800 bg-green-100 border border-green-300 rounded p-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-
             @if (session('error'))
                 <div class="mb-4 text-red-800 bg-red-100 border border-red-300 rounded p-4">
                     {{ session('error') }}
@@ -231,58 +225,17 @@
                                         <span class="text-red-600">*</span></label>
                                     <select id="country" name="country"
                                         class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm form-control">
-                                        <option value="United States">United States</option>
-                                        <option value="Canada">Canada</option>
-                                        <option value="Mexico">Mexico</option>
-                                        <option value="United Kingdom">United Kingdom</option>
-                                        <option value="Australia">Australia</option>
-                                        <option value="Germany">Germany</option>
-                                        <option value="France">France</option>
+                                        @foreach ($countries as $country)
+                                            <option value="{{ $country->name }}">{{ $country->name }}, {{ $country->iso }}
+                                            </option>
+                                        @endforeach
+
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Additional Information -->
-                        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6 p-6">
-                            <h2 class="text-xl font-bold mb-4">Additional Information</h2>
 
-                            <div class="mb-4">
-                                <label for="additional_information"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Special
-                                    Instructions
-                                    <span class="text-gray-400">(optional)</span></label>
-                                <textarea id="additional_information" name="additional_information" rows="3"
-                                    placeholder="Any special requests or information for the service provider?"
-                                    class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md form-control"></textarea>
-                            </div>
-
-                            <div class="flex items-start mb-4">
-                                <div class="flex items-center h-5">
-                                    <input id="terms" name="terms" type="checkbox"
-                                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="terms" class="font-medium text-gray-700">I agree to the <a
-                                            href="#" class="text-indigo-600 hover:text-indigo-500">Terms of
-                                            Service</a> and <a href="#"
-                                            class="text-indigo-600 hover:text-indigo-500">Privacy
-                                            Policy</a></label>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start">
-                                <div class="flex items-center h-5">
-                                    <input id="marketing" name="marketing" type="checkbox"
-                                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <label for="marketing" class="font-medium text-gray-700">Email me about special
-                                        pricing
-                                        and updates</label>
-                                </div>
-                            </div>
-                        </div>
                 </div>
 
                 <!-- Right Column - Order Summary -->
@@ -396,7 +349,8 @@
                                 <a href="#" class="text-sm text-gray-600 hover:text-indigo-600">Cancel and return to
                                     provider</a>
                             </div>
-                            <div id="payment-error" style="display: none; color: red; font-weight: bold; margin-top: 1rem;"></div>
+                            <div id="payment-error"
+                                style="display: none; color: red; font-weight: bold; margin-top: 1rem;"></div>
                         </div>
 
                         <!-- Support Section -->
@@ -410,7 +364,8 @@
                                 <span class="font-medium text-gray-700">Need help?</span>
                             </div>
                             <p class="text-sm text-gray-600 mb-2">Our support team is available 24/7</p>
-                            <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">Contact
+                            <a href="{{ route('support') }}"
+                                class="text-sm text-indigo-600 hover:text-indigo-500 font-medium">Contact
                                 Support</a>
                         </div>
                     </div>
@@ -428,22 +383,22 @@
 @section('script')
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        const stripe = Stripe('{{ config("services.stripe.key") }}');
+        const stripe = Stripe('{{ config('services.stripe.key') }}');
         const form = document.getElementById('payment-form');
         const payButton = document.getElementById('pay-button');
         const bookingId = document.getElementById('booking_id')?.value;
         const errorDiv = document.getElementById('payment-error');
-    
+
         function showError(message) {
             errorDiv.innerText = message;
             errorDiv.style.display = 'block';
         }
-    
+
         function clearError() {
             errorDiv.innerText = '';
             errorDiv.style.display = 'none';
         }
-    
+
         function validateForm() {
             const requiredFields = ['first_name', 'last_name', 'email', 'address', 'city', 'province'];
             return requiredFields.every(id => {
@@ -451,23 +406,23 @@
                 return field && field.value.trim() !== '';
             });
         }
-    
+
         form.addEventListener('input', () => {
             payButton.disabled = !validateForm();
         });
-    
+
         payButton.addEventListener('click', async (e) => {
             e.preventDefault();
             clearError();
-    
+
             if (!validateForm()) {
                 showError('Please fill in all required billing fields.');
                 return;
             }
-    
+
             payButton.disabled = true;
             payButton.innerText = 'Processing...';
-    
+
             try {
                 const billingData = {
                     booking_id: bookingId,
@@ -480,7 +435,7 @@
                     zip_code: document.getElementById('zip_code')?.value || '',
                     country: document.getElementById('country')?.value || ''
                 };
-    
+
                 const response = await fetch(`/payment/${bookingId}/process`, {
                     method: 'POST',
                     headers: {
@@ -489,9 +444,9 @@
                     },
                     body: JSON.stringify(billingData)
                 });
-    
+
                 const result = await response.json();
-    
+
                 if (!response.ok) {
                     const errorMessage = result?.message || 'An unexpected error occurred during payment.';
                     showError(errorMessage);
@@ -499,7 +454,7 @@
                     payButton.innerText = 'Pay Again';
                     return;
                 }
-    
+
                 if (result.url) {
                     // ✅ Redirect to Stripe
                     window.location.href = result.url;
@@ -508,7 +463,7 @@
                     payButton.disabled = false;
                     payButton.innerText = 'Pay Again';
                 }
-    
+
             } catch (err) {
                 console.error(err);
                 showError('Unexpected error: ' + err.message);
@@ -516,12 +471,10 @@
                 payButton.innerText = 'Pay Again';
             }
         });
-    
+
         document.addEventListener('DOMContentLoaded', () => {
             payButton.disabled = !validateForm();
             clearError();
         });
     </script>
-    
-    
 @endsection

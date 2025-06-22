@@ -41,7 +41,14 @@ function emailReceipt() {
     
     modal.querySelector('#email-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        alert('Receipt emailed successfully!');
+        Swal.fire({
+            icon: "success",
+            title: "Sent!",
+            text: "Receipt emailed successfully!",
+            showConfirmButton: false,
+            timer: 2000,
+        });
+        
         modal.remove();
     });
 }

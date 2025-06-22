@@ -31,22 +31,22 @@
             <div class="px-8 py-6 border-b border-gray-200">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900">ServicePro</h2>
-                        <p class="text-sm text-gray-600 mt-1">Professional Service Platform</p>
+                        <h2 class="text-2xl font-bold text-gray-900">BookEase</h2>
+                        <p class="text-sm text-gray-600 mt-1">{{$receipt->service->service_name}}</p>
                         <div class="mt-4 text-sm text-gray-600">
-                            <p>123 Business Street</p>
-                            <p>City, State 12345</p>
-                            <p>Phone: (555) 123-4567</p>
-                            <p>Email: support@servicepro.com</p>
+                            <p>{{$receipt->billingInformation->address}}</p>
+                            <p>{{$receipt->billingInformation->province ??'N/A'}}, {{$receipt->billingInformation->zip_code}}</p>
+                            <p>Phone: {{$receipt->user->phone}}</p>
+                            <p>Email: {{$receipt->billingInformation->email}}</p>
                         </div>
                     </div>
                     <div class="text-right">
                         <h3 class="text-xl font-semibold text-gray-900">RECEIPT</h3>
                         <div class="mt-4 text-sm">
-                            <p><span class="font-medium">Receipt #:</span> INV-2024-001</p>
-                            <p><span class="font-medium">Date:</span> January 15, 2024</p>
-                            <p><span class="font-medium">Payment Date:</span> January 15, 2024</p>
-                            <p><span class="font-medium">Payment Method:</span> Credit Card ****1234</p>
+                            <p><span class="font-medium">Receipt #:</span> #BE-{{ now()->year }}-{{ str_pad($receipt->billingInformation->id, 5, '0', STR_PAD_LEFT) }}</p>
+                            <p><span class="font-medium">Date:</span> {{($receipt->created_at)->format('F d, Y')}}</p>
+                            <p><span class="font-medium">Payment Date:</span>{{($receipt->payment->updated_at)->format('F d, Y')}}</p>
+                            <p><span class="font-medium">Payment Method:</span> Credit Card{{ strtoupper($receipt->payment->card_brand ??'Card') }} ****{{ $receipt->payment->card_last4 ??'****'}}</p>
                         </div>
                     </div>
                 </div>
@@ -58,10 +58,10 @@
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">Service Provider</h4>
                         <div class="text-sm text-gray-600">
-                            <p class="font-medium text-gray-900">Sarah Johnson</p>
-                            <p>Professional Cleaner</p>
-                            <p>sarah.johnson@email.com</p>
-                            <p>(555) 987-6543</p>
+                            <p class="font-medium text-gray-900">{{$receipt->provider->first_name}} {{$receipt->provider->last_name}}</p>
+                            <p>{{$receipt->service->service_name}}</p>
+                            <p>{{$receipt->provider->email}}</p>
+                            <p>{{$receipt->provider->phone}}</p>
                             <p class="mt-2">
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     Verified Provider
@@ -72,11 +72,11 @@
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">Bill To</h4>
                         <div class="text-sm text-gray-600">
-                            <p class="font-medium text-gray-900">Jennifer Wilson</p>
-                            <p>jennifer.wilson@email.com</p>
-                            <p>(555) 123-4567</p>
-                            <p class="mt-2">123 Main Street</p>
-                            <p>Downtown, City 12345</p>
+                            <p class="font-medium text-gray-900">{{$receipt->user->first_name}} {{$receipt->user->last_name}}</p>
+                            <p>{{$receipt->billingInformation->email}}</p>
+                            <p>{{$receipt->user->phone}}</p>
+                            <p class="mt-2">{{$receipt->billingInformation->address}}</p>
+                            <p>{{$receipt->billingInformation->province ??'N/A'}}, {{$receipt->billingInformation->zip_code}}</p>
                         </div>
                     </div>
                 </div>
@@ -100,17 +100,17 @@
                             <tr>
                                 <td class="py-3 text-sm text-gray-900">
                                     <div>
-                                        <p class="font-medium">Deep Cleaning Service</p>
-                                        <p class="text-gray-600 text-xs">Complete deep cleaning of 2-bedroom apartment including kitchen and bathrooms</p>
+                                        <p class="font-medium">{{ $serviceOfferingName }} </p>
+                                        <p class="text-gray-600 text-xs">{{$receipt->special_instruction ??'No Special Instructions' }}</p>
                                     </div>
                                 </td>
                                 <td class="py-3 text-sm text-gray-600">
-                                    January 15, 2024<br>
-                                    10:00 AM - 1:00 PM
+                                    {{($receipt->start_time)->format('F d, Y')}}<br>
+                                    {{($receipt->start_time)->format('h:i A')}} -  {{($receipt->end_time)->format('h:i A')}}
                                 </td>
-                                <td class="py-3 text-sm text-gray-600">3 hours</td>
-                                <td class="py-3 text-sm text-gray-600 text-right">$50.00/hour</td>
-                                <td class="py-3 text-sm text-gray-900 text-right font-medium">$150.00</td>
+                                <td class="py-3 text-sm text-gray-600">{{$receipt->duration}} hours</td>
+                                <td class="py-3 text-sm text-gray-600 text-right">${{ number_format($servicePrice, 2) }}/hour</td>
+                                <td class="py-3 text-sm text-gray-900 text-right font-medium">${{($receipt->duration )* ($servicePrice)}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -120,14 +120,27 @@
             <!-- Additional Charges -->
             <div class="px-8 py-6 border-b border-gray-200">
                 <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Additional Items</h4>
-                <div class="space-y-2 text-sm">
+
+                    @if (!empty($selectedAdds))
+
+        
+                        @foreach ($selectedAdds as $addOn)
+                            @php
+                                $price = $additionalServicePrices[$addOn] ?? 0;
+                            @endphp
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">{{ $addOn }}</span>
+                                <span class="text-gray-900">${{ number_format($price, 2) }}</span>
+                            </div>
+                        @endforeach
+                    
+                @endif
+                
+               
+                
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Cleaning Supplies</span>
-                        <span class="text-gray-900">$15.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Travel Fee</span>
-                        <span class="text-gray-900">$10.00</span>
+                        <span class="text-gray-600">Service Fee</span>
+                        <span class="text-gray-900">${{$receipt->service->service_fee}}</span>
                     </div>
                 </div>
             </div>
@@ -139,25 +152,25 @@
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Subtotal:</span>
-                                <span class="text-gray-900">$175.00</span>
+                                <span class="text-gray-900">${{$beforeTaxTotal}}</span>
                             </div>
-                            <div class="flex justify-between">
+                            {{-- <div class="flex justify-between">
                                 <span class="text-gray-600">Platform Fee (5%):</span>
                                 <span class="text-gray-900">$8.75</span>
-                            </div>
+                            </div> --}}
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Tax (8.5%):</span>
-                                <span class="text-gray-900">$14.88</span>
+                                <span class="text-gray-600">Tax ({{$receipt->service->tax}}%):</span>
+                                <span class="text-gray-900">${{$taxAmount}}</span>
                             </div>
                             <div class="border-t border-gray-200 pt-2">
                                 <div class="flex justify-between">
                                     <span class="text-base font-semibold text-gray-900">Total:</span>
-                                    <span class="text-base font-semibold text-gray-900">$198.63</span>
+                                    <span class="text-base font-semibold text-gray-900">${{$receipt->total_amount}}</span>
                                 </div>
                             </div>
                             <div class="flex justify-between text-green-600">
                                 <span class="font-medium">Amount Paid:</span>
-                                <span class="font-medium">$198.63</span>
+                                <span class="font-medium">${{$receipt->total_amount}}</span>
                             </div>
                         </div>
                     </div>
@@ -170,16 +183,16 @@
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">Payment Information</h4>
                         <div class="text-sm text-gray-600 space-y-1">
-                            <p><span class="font-medium">Payment Method:</span> Visa ****1234</p>
-                            <p><span class="font-medium">Transaction ID:</span> txn_1234567890</p>
-                            <p><span class="font-medium">Authorization Code:</span> AUTH123456</p>
-                            <p><span class="font-medium">Status:</span> <span class="text-green-600 font-medium">Paid</span></p>
+                            <p><span class="font-medium">Payment Method:</span> {{ strtoupper($receipt->payment->card_brand ??'Card') }} ****{{ $receipt->payment->card_last4??'****' }}</p>
+                            {{-- <p><span class="font-medium">Transaction ID:</span> txn_1234567890</p>
+                            <p><span class="font-medium">Authorization Code:</span> AUTH123456</p> --}}
+                            <p><span class="font-medium">Status:</span> <span class="text-green-600 font-medium">{{$receipt->payment_status}}</span></p>
                         </div>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">Notes</h4>
                         <div class="text-sm text-gray-600">
-                            <p>Service completed successfully. Client was very satisfied with the quality of work. All areas were cleaned thoroughly as requested.</p>
+                            <p>Service Provider will contact you shortly.</p>
                         </div>
                     </div>
                 </div>
@@ -188,8 +201,8 @@
             <!-- Footer -->
             <div class="px-8 py-6 border-t border-gray-200 text-center">
                 <div class="text-sm text-gray-600">
-                    <p class="mb-2">Thank you for using ServicePro!</p>
-                    <p>For questions about this receipt, please contact us at support@servicepro.com or (555) 123-4567</p>
+                    <p class="mb-2">Thank you for using BookEase!</p>
+                    <p>For questions about this receipt, please contact us at support@BookEase.com or (555) 123-4567</p>
                     <p class="mt-4 text-xs">This is a computer-generated receipt and does not require a signature.</p>
                 </div>
             </div>

@@ -116,7 +116,8 @@
                                             <div class="mt-1">
                                                 <input type="time" name="start_time" id="start_time"
                                                     value="{{ old('start_time') }}"
-                                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('start_time') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
+                                                    class="shadow-sm focus:ring-indigo-500  block w-full sm:text-sm border-gray-300 rounded-md 
+                                                    @error('start_time') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                             </div>
                                             @error('start_time')
                                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -132,7 +133,8 @@
                                                 <input type="number" name="duration" id="duration"
                                                     value="{{ old('duration', 2) }}" min="1" max="8"
                                                     step="0.5"
-                                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('duration') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
+                                                    class="shadow-sm  focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md 
+                                                    @error('duration') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                             </div>
                                             @error('duration')
                                                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

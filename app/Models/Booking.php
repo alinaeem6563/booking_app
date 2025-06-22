@@ -10,7 +10,7 @@ class Booking extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
-    protected $fillable = ['user_id', 'provider_id', 'service_id', 'slot_id', 'start_time', 'end_time', 'duration', 'status', 'payment_status', 'service_offering_id'];
+    protected $fillable = ['user_id', 'provider_id', 'service_id', 'slot_id', 'start_time', 'end_time', 'duration', 'status', 'payment_status', 'service_offering_id', 'special_instruction'];
     public function user()
     {
         return $this->belongsTo(User::class);

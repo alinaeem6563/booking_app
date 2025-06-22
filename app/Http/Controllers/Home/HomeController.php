@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
+use App\Models\Review;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -55,7 +56,7 @@ class HomeController extends Controller
             });
 
         // Top 5 reviews with 5-star rating
-        $topReviews = \App\Models\Review::where('rating', 5)
+        $topReviews =Review::where('rating', 5)
             ->with('user')
             ->latest()
             ->limit(5)

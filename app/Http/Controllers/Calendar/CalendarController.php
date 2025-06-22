@@ -35,9 +35,9 @@ class CalendarController extends Controller
     public function getProviderServices($providerId)
     {
         $services = Service::where('provider_id', $providerId)->get(['id', 'service_name', 'service_duration', 'service_offerings']);
-    
+
         $result = [];
-    
+
         foreach ($services as $service) {
             $result[] = [
                 'id' => $service->id,
@@ -46,11 +46,11 @@ class CalendarController extends Controller
                 'offerings' => json_decode($service->service_offerings, true),
             ];
         }
-    
+
         return response()->json($result);
     }
-    
-    
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -58,7 +58,7 @@ class CalendarController extends Controller
     public function create()
     {
         $providerServices = Service::where('provider_id', Auth::id())->get();
-
+        $providerDayOff = DayOff::where('provider_id', Auth::id())->get();
         $events = TimeSlot::with('service.provider')->get()->map(function ($slot) {
             return [
                 'title' => $slot->is_available ? 'Available' : 'Booked',
@@ -73,8 +73,10 @@ class CalendarController extends Controller
             ];
         });
 
-        return view('calendar.provider-calendar', compact('providerServices', 'events'));
+        return view('calendar.provider-calendar', compact('providerServices', 'events', 'providerDayOff'));
     }
+
+    
     public function sidebar($id)
     {
         $service = Service::findOrFail($id);
@@ -119,7 +121,9 @@ class CalendarController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $ProviderDayOff=TimeSlot::findOrFail($id);
+        $ProviderDayOff->delete();
+        return redirect()->back()->with('success', 'Day off has been canceled successfully.');
     }
     public function storeTimeSlot(Request $request)
     {
@@ -188,16 +192,27 @@ class CalendarController extends Controller
 
     public function getSlots(Request $request)
     {
-        // Optionally parse start and end if you want to filter slots by date range:
         $start = $request->query('start');
         $end = $request->query('end');
 
-        $query = TimeSlot::where('provider_id', Auth::id());
+        // Resolve provider_id from service_id
+        $serviceId = $request->query('service_id');
+        if (!$serviceId) {
+            return response()->json(['error' => 'Missing service_id'], 400);
+        }
+
+        $service = Service::find($serviceId);
+        if (!$service) {
+            return response()->json(['error' => 'Invalid service_id'], 404);
+        }
+
+        $providerId = $service->provider_id;
+
+        $query = TimeSlot::where('provider_id', $providerId);
 
         if ($start && $end) {
             $startDate = Carbon::parse($start)->toDateString();
             $endDate = Carbon::parse($end)->toDateString();
-
             $query->whereBetween('date', [$startDate, $endDate]);
         }
 
@@ -213,6 +228,8 @@ class CalendarController extends Controller
 
         return response()->json($slots);
     }
+
+
 
 
     public function getDaysOff(Request $request)
@@ -294,7 +311,7 @@ class CalendarController extends Controller
                     'title' => $slot->is_booked ? 'Booked' : 'Available',
                     'start' => $slotStart->toIso8601String(),
                     'end' => $slotEnd->toIso8601String(),
-                    'backgroundColor' => $slot->is_booked ? '#f87171' : '#34d399',
+                    'backgroundColor' => $slot->is_booked ? '#fef3c7' : '#34d399',
                     'borderColor' => $slot->is_booked ? '#ef4444' : '#10b981',
                     'className' => $slot->is_booked ? 'booked-slot' : 'available-slot',
                     'overlap' => false,

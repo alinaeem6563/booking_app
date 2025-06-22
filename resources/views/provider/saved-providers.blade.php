@@ -5,18 +5,29 @@
 @section('title', 'Saved Providers')
 
 @section('content')
-    <div x-data="{ sidebarOpen: window.innerWidth >= 768 }" class="min-h-screen flex">
+<div x-data="{ 
+    sidebarOpen: false, 
+    sidebarCollapsed: window.innerWidth >= 768 ? false : true,
+    toggleSidebar() {
+        if (window.innerWidth >= 768) {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+        } else {
+            this.sidebarOpen = !this.sidebarOpen;
+        }
+    }
+}" 
+class="min-h-screen bg-gray-50"
+:class="sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'">
         @include('navigation.sidebar')
-
-
         <!-- Main Content -->
-        <div class="flex-1 p-4">
-            <!-- Top Header -->
-            @include('navigation.UserHeader')
+        <div class="main-content transition-all duration-300 ease-in-out md:ml-64" 
+             :class="sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'">
+             <!-- Top Header -->
+             @include('navigation.UserHeader')
 
             <!-- Filters -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Saved Providers</h1>
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-sm p-6 mx-2 my-2 mb-6">
+                <h1 class="text-2xl font-bold text-white">Saved Providers</h1>
                 <div class="flex flex-col sm:flex-row gap-4">
                     <select id="category-filter"
                         class="rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
@@ -56,7 +67,7 @@
             </div>
 
             <!-- Providers Grid -->
-            <div id="providers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="providers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-2">
                 <!-- Provider cards will be inserted here by JavaScript -->
             </div>
 

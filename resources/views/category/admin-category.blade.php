@@ -318,96 +318,41 @@ window.providerCategoriesManagement = function() {
         },
         
         confirmDelete() {
-            if (!this.categoryToDelete) return;
-            
-            // In a real app, this would be an API call
+    if (!this.categoryToDelete) return;
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This action will permanently delete the category.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EC3A45', // Your specified red color
+        cancelButtonColor: '#d3d3d3',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Simulate API logic
             this.categories = this.categories.filter(c => c.id !== this.categoryToDelete.id);
             this.filterCategories();
-            
-            this.showDeleteModal = false;
             this.categoryToDelete = null;
-        },
+
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Category has been deleted.',
+                icon: 'success',
+                confirmButtonColor: '#EC3A45'
+            });
+        }
+    });
+}
+
         
         cancelDelete() {
             this.showDeleteModal = false;
             this.categoryToDelete = null;
         },
         
-        getMockCategories() {
-            return [
-                {
-                    id: 1,
-                    name: 'Home Cleaning',
-                    slug: 'home-cleaning',
-                    description: 'Professional home cleaning services including regular cleaning, deep cleaning, and specialized services.',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>',
-                    gradient: 'from-blue-500 to-indigo-600',
-                    providerCount: 48,
-                    active: true,
-                    featured: true,
-                    createdAt: '2023-01-15T00:00:00Z'
-                },
-                {
-                    id: 2,
-                    name: 'Plumbing',
-                    slug: 'plumbing',
-                    description: 'Expert plumbing services for repairs, installations, and maintenance for residential and commercial properties.',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
-                    gradient: 'from-cyan-500 to-blue-600',
-                    providerCount: 36,
-                    active: true,
-                    featured: true,
-                    createdAt: '2023-02-10T00:00:00Z'
-                },
-                {
-                    id: 3,
-                    name: 'Electrical',
-                    slug: 'electrical',
-                    description: 'Licensed electricians for all electrical needs, from repairs to installations and smart home setups.',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>',
-                    gradient: 'from-yellow-400 to-orange-500',
-                    providerCount: 29,
-                    active: true,
-                    featured: true,
-                    createdAt: '2023-01-25T00:00:00Z'
-                },
-                {
-                    id: 4,
-                    name: 'Personal Training',
-                    slug: 'personal-training',
-                    description: 'Certified personal trainers offering customized fitness programs, nutrition guidance, and motivation.',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>',
-                    gradient: 'from-green-500 to-teal-600',
-                    providerCount: 42,
-                    active: true,
-                    featured: true,
-                    createdAt: '2023-03-05T00:00:00Z'
-                },
-                {
-                    id: 5,
-                    name: 'Massage Therapy',
-                    slug: 'massage-therapy',
-                    description: 'Professional massage therapists offering various techniques for relaxation, pain relief, and wellness.',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
-                    gradient: 'from-pink-500 to-rose-600',
-                    providerCount: 31,
-                    active: false,
-                    featured: false,
-                    createdAt: '2023-02-18T00:00:00Z'
-                },
-                {
-                    id: 6,
-                    name: 'Home Renovation',
-                    slug: 'home-renovation',
-                    description: 'Experienced contractors for home renovations, remodeling, and custom construction projects.',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>',
-                    gradient: 'from-amber-500 to-orange-600',
-                    providerCount: 27,
-                    active: true,
-                    featured: false,
-                    createdAt: '2023-01-30T00:00:00Z'
-                }
-            ];
+       
         }
     };
 }

@@ -490,12 +490,6 @@
                             </div>
                         @endif
 
-                        @if (session('error'))
-                            <div class="alert alert-danger mb-4">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-
                         @if ($errors->any())
                             <div class="alert alert-danger mb-4">
                                 <ul class="list-disc pl-5">
@@ -663,11 +657,6 @@
                                 </div>
                             @endif
 
-                            @if (session('error'))
-                                <div class="alert alert-danger mb-4">
-                                    {{ session('error') }}
-                                </div>
-                            @endif
 
                             @if ($errors->any())
                                 <div class="alert alert-danger mb-4">
@@ -747,6 +736,47 @@
                                             </label>
                                         @endforeach
 
+                                    </div>
+                                </div>
+                                <!-- Additional Information -->
+                                <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6 p-6">
+                                    <h2 class="text-xl font-bold mb-4">Additional Information</h2>
+
+                                    <div class="mb-4">
+                                        <label for="special_instruction"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Special
+                                            Instructions
+                                            <span class="text-gray-400">(optional)</span></label>
+                                        <textarea id="special_instruction" name="special_instruction" rows="3"
+                                            placeholder="Any special requests or information for the service provider?"
+                                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md form-control"></textarea>
+                                    </div>
+
+                                    <div class="flex items-start mb-4">
+                                        <div class="flex items-center h-5">
+                                            <input id="terms" name="terms" type="checkbox"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="terms" class="font-medium text-gray-700">I agree to the <a
+                                                    href="#" class="text-indigo-600 hover:text-indigo-500">Terms of
+                                                    Service</a> and <a href="#"
+                                                    class="text-indigo-600 hover:text-indigo-500">Privacy
+                                                    Policy</a></label>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input id="marketing" name="marketing" type="checkbox"
+                                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="marketing" class="font-medium text-gray-700">Email me about
+                                                special
+                                                pricing
+                                                and updates</label>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -952,7 +982,7 @@
     </script>
 @endsection
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    @vite(['resources/js/save-provider.js', 'resources/js/review.js','resources/js/booking-slot-alert.js']);
+    @vite(['resources/js/save-provider.js', 'resources/js/review.js', 'resources/js/booking-slot-alert.js']);
 @endsection

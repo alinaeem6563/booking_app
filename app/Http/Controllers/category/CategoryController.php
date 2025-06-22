@@ -4,7 +4,9 @@ namespace App\Http\Controllers\category;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Review;
 use App\Models\Service;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,12 +19,32 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
         return view('category.view-all-category-admin', compact('categories'));
-        
     }
 
     public function UserCategory()
     {
-        $categories = Category::all();
+        $categories = Category::with(['services.reviews'])->get();
+
+        $categories = $categories->map(function ($category) {
+            $services = $category->services;
+            $serviceCount = $services->count();
+
+            $allReviews = $services->flatMap->reviews;
+
+            $avgRating = $allReviews->count() > 0
+                ? round($allReviews->avg('rating'), 1)
+                : 0.0;
+            return [
+                'id' => $category->id,
+                'category_icon_link' => $category->category_icon_link,
+                'category_name' => $category->category_name,
+                'category_description' => $category->category_description,
+                'services_count' => $serviceCount,
+                'avg_rating' => $avgRating,
+                'created_at' => $category->created_at->toDateTimeString(),
+            ];
+        });
+
         return view('category.user-category', compact('categories'));
     }
 
@@ -55,11 +77,10 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        // Get services in this category with their providers and ratings
-        $services = $category->services()
+        // Get services in this category with provider and reviews
+        $categoryServices = $category->services()
             ->with(['provider', 'reviews'])
             ->when(Auth::user()->account_type !== 'admin', function ($query) {
-                // Non-admin users only see active services
                 $query->where('service_status', 'active');
             })
             ->get()
@@ -70,7 +91,9 @@ class CategoryController extends Controller
                 return $service;
             });
 
-        // Get related categories (exclude current category)
+        $serviceIdsInCategory = $categoryServices->pluck('id');
+
+        // Related categories (excluding current)
         $relatedCategories = Category::where('category_status', 'active')
             ->where('id', '!=', $category->id)
             ->withCount(['services' => function ($query) {
@@ -80,40 +103,43 @@ class CategoryController extends Controller
             ->limit(6)
             ->get();
 
-        // Calculate statistics
-        $activeProviders = $services->where('service_status', 'active')
-            ->pluck('provider_id')
-            ->unique()
-            ->count();
+        // Active providers
+        $activeProviderIds = User::where('account_type', 'provider')
+            ->where('status', 'active')
+            ->pluck('id');
 
-        $averageRating = $services->where('service_status', 'active')
-            ->avg('avg_rating') ?? 0;
+        $activeProviders = $activeProviderIds->count();
 
-        $activePrices = $services->where('service_status', 'active')
-            ->pluck('service_price')
-            ->filter();
+        // Get services by active providers
+        $providerServices = Service::whereIn('provider_id', $activeProviderIds)
+            ->with(['bookings']) // Assuming 'bookings' is a relationship
+            ->get();
 
+        // Calculate average rating for services in current category
+        $averageRating = Review::whereIn('service_id', $serviceIdsInCategory)->avg('rating') ?? 0;
+
+        // Price range for services of active providers
+        $activePrices = $providerServices->pluck('service_price')->filter();
         $priceRange = [
             'min' => $activePrices->min(),
             'max' => $activePrices->max()
         ];
 
-        // Additional stats for admin
+        // Admin-only stats
         $additionalStats = [];
         if (Auth::user()->account_type === 'admin') {
             $additionalStats = [
-                'total_bookings' => $services->sum(fn($service) => $service->bookings()->count()),
-                'total_revenue' => $services->sum(
-                    fn($service) =>
-                    $service->bookings()->where('status', 'completed')->sum('total_amount')
+                'total_bookings' => $providerServices->sum(fn($service) => $service->bookings->count()),
+                'total_revenue' => $providerServices->sum(
+                    fn($service) => $service->bookings->where('status', 'completed')->sum('total_amount')
                 ),
-                'inactive_services' => $services->where('service_status', '0')->count(),
+                'inactive_services' => $providerServices->where('service_status', 'inactive')->count(),
             ];
         }
 
         return view('category.single-category', compact(
             'category',
-            'services',
+            'categoryServices',
             'relatedCategories',
             'activeProviders',
             'averageRating',
@@ -123,21 +149,33 @@ class CategoryController extends Controller
     }
 
 
+
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        $category=Category::findOrFail($id);
-        return view('category.edit-category',compact('category'));
+        $category = Category::findOrFail($id);
+        return view('category.edit-category', compact('category'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'category_name' => ['required', 'string', 'max:255'],
+            'category_slug' => ['required', 'string', 'max:255'],
+            'category_description' => ['required'],
+            'category_icon_link' => ['nullable', 'string'],
+            'category_status' => ['required', 'in:active,inactive'],
+        ]);
+
+        $category = Category::findOrFail($id);
+        $category->update($validated);
+
+        return redirect()->back()->with('success', 'Category Updated Successfully!');
     }
 
     /**

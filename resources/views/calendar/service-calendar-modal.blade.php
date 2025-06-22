@@ -92,9 +92,17 @@
 
     // Example action for confirm button
     confirmServiceCalendarBtn.addEventListener('click', () => {
-        alert('Service calendar changes saved!');
-        closeServiceCalendarModal();
+    Swal.fire({
+        icon: 'success',
+        title: 'Saved!',
+        text: 'Service calendar changes saved successfully.',
+        timer: 2000,
+        showConfirmButton: false
     });
+
+    closeServiceCalendarModal();
+});
+
 
     // Close modal when clicking outside
     serviceCalendarModalOverlay.addEventListener('click', (e) => {
@@ -130,15 +138,20 @@
             allDaySlot: false,
             height: 'auto',
             selectable: false,
-
             eventSources: [{
                     url: '/calendar/daysoff',
                     method: 'GET',
                     extraParams: {
                         service_id: serviceId
                     },
-                    failure: () => alert('There was an error while fetching days off!'),
-                    color: '#f8d7da',
+                    failure: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Fetch Days Off',
+                            text: 'There was an error while fetching days off!',
+                        });
+                    },
+                    color: '#ef4444',
                     textColor: '#000',
                     display: 'background',
                 },
@@ -148,7 +161,13 @@
                     extraParams: {
                         service_id: serviceId
                     },
-                    failure: () => alert('There was an error while fetching time slots!'),
+                    failure: () => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Fetch Slots',
+                            text: 'There was an error while fetching time slots!',
+                        });
+                    },
                 }
             ],
 
@@ -172,7 +191,11 @@
                 console.log('Clicked slot ID:', slotId);
 
                 if (!slotId) {
-                    alert('Selected slot ID is invalid or missing.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Slot',
+                        text: 'Selected slot ID is invalid or missing.',
+                    });
                     return;
                 }
 
@@ -182,7 +205,11 @@
                 clickedDate.setHours(0, 0, 0, 0);
                 now.setHours(0, 0, 0, 0);
                 if (clickedDate < now) {
-                    alert("You cannot book slots from past dates.");
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Date',
+                        text: 'You cannot book slots from past dates.',
+                    });
                     return;
                 }
 
@@ -212,7 +239,7 @@
             eventDataTransform: function(eventData) {
                 if (eventData.slot_id) {
                     eventData.id = eventData.slot_id
-                .toString(); // assign id from slot_id for FullCalendar
+                        .toString(); // assign id from slot_id for FullCalendar
                 }
                 return eventData;
             }
@@ -221,7 +248,7 @@
         calendar.render();
 
         function markSelected(el) {
-            el.style.backgroundColor = '#4f46e5'; // Indigo
+            el.style.backgroundColor = '#ef4444'; // Indigo
             el.style.color = 'white';
         }
 

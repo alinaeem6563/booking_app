@@ -5,6 +5,7 @@ namespace App\Http\Controllers\payment;
 use App\Http\Controllers\Controller;
 use App\Models\BillingInformation;
 use App\Models\Booking;
+use App\Models\Country;
 use App\Models\Payment;
 use App\Models\TimeSlot;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Session as LaravelSession;
 use Illuminate\Support\Facades\Validator;
+use Stripe\PaymentIntent;
+use Stripe\PaymentMethod;
 
 class PaymentController extends Controller
 {
@@ -39,7 +42,20 @@ class PaymentController extends Controller
     {
         //
     }
+    public function decline($booking)
+    {
+        $booking = Booking::with(['provider', 'service', 'timeSlot'])
+            ->findOrFail($booking);
+        $countries = Country::all();
+        if ($booking->status === 'paid') {
+            return redirect()->route('payment.payment-declined', ['booking' => $booking->id]);
+        }
 
+        return view('payment.payment', array_merge([
+            'booking' => $booking,
+            'countries' => $countries,
+        ], $this->extractBookingDetails($booking)));
+    }
     /**
      * Display the specified resource.
      */
@@ -47,13 +63,14 @@ class PaymentController extends Controller
     {
         $booking = Booking::with(['provider', 'service', 'timeSlot'])
             ->findOrFail($booking);
-
+        $countries = Country::all();
         if ($booking->status === 'paid') {
             return redirect()->route('payment.success', ['booking' => $booking->id]);
         }
 
         return view('payment.payment', array_merge([
-            'booking' => $booking
+            'booking' => $booking,
+            'countries' => $countries,
         ], $this->extractBookingDetails($booking)));
     }
     private function extractBookingDetails(Booking $booking): array
@@ -165,7 +182,6 @@ class PaymentController extends Controller
     public function success(Request $request, $bookingId)
     {
         try {
-            // ✅ If session_id exists, process the payment
             $sessionId = $request->get('session_id');
 
             if ($sessionId) {
@@ -188,45 +204,52 @@ class PaymentController extends Controller
                         ->with('booking_id', $bookingId);
                 }
 
-                // Only insert if not already confirmed
+                $paymentIntent = PaymentIntent::retrieve($session->payment_intent);
+                $paymentMethod = PaymentMethod::retrieve($paymentIntent->payment_method);
+                $billingDetails = $paymentIntent->charges->data[0]->billing_details ?? null;
+
+                $cardBrand = $paymentMethod->card->brand ?? null;
+                $cardLast4 = $paymentMethod->card->last4 ?? null;
+
+                // Create payment record if not exists
                 if (!Payment::where('booking_id', $bookingId)->where('status', 'confirmed')->exists()) {
                     Payment::create([
                         'booking_id'      => $bookingId,
                         'amount'          => $amount,
                         'payment_gateway' => 'stripe',
                         'status'          => 'confirmed',
+                        'card_brand'      => $cardBrand,
+                        'card_last4'      => $cardLast4,
                     ]);
 
-                    // Save billing info if not already exists
+                    // Save billing info if not exists
                     if (!BillingInformation::where('booking_id', $bookingId)->exists()) {
                         BillingInformation::create([
                             'booking_id' => $bookingId,
-                            'first_name' => $metadata->first_name ?? null,
+                            'first_name' => $metadata->first_name ?? ($billingDetails->name ?? null),
                             'last_name'  => $metadata->last_name ?? null,
-                            'email'      => $metadata->email ?? null,
-                            'address'    => $metadata->address ?? null,
-                            'city'       => $metadata->city ?? null,
-                            'province'   => $metadata->province ?? null,
-                            'zip_code'   => $metadata->zip_code ?? null,
-                            'country'    => $metadata->country ?? null,
+                            'email'      => $metadata->email ?? ($billingDetails->email ?? null),
+                            'address'    => $metadata->address ?? ($billingDetails->address->line1 ?? null),
+                            'city'       => $metadata->city ?? ($billingDetails->address->city ?? null),
+                            'province'   => $metadata->province ?? ($billingDetails->address->state ?? null),
+                            'zip_code'   => $metadata->zip_code ?? ($billingDetails->address->postal_code ?? null),
+                            'country'    => $metadata->country ?? ($billingDetails->address->country ?? null),
                         ]);
                     }
 
-                    // ✅ Update booking payment status
+                    // Confirm booking
                     $bookingModel = Booking::find($bookingId);
                     if ($bookingModel) {
                         $bookingModel->payment_status = 'confirmed';
                         $bookingModel->save();
-
                     }
                 }
 
-                // Redirect to same page WITHOUT session_id to prevent re-processing on reload
                 return redirect()->route('payment.success', ['booking' => $bookingId])
                     ->with('message', 'Payment successful!');
             }
 
-            // ✅ Handle reload / second-time visit (no session_id, but booking ID is available)
+            // Handle reload case
             $bookingModel = Booking::with(['service', 'provider', 'timeSlot'])->findOrFail($bookingId);
             $billingInfo = BillingInformation::where('booking_id', $bookingId)->first();
 
@@ -246,6 +269,7 @@ class PaymentController extends Controller
 
 
 
+
     public function cancel(Request $request, $booking)
     {
         return redirect()->route('payment-declined', ['booking' => $booking])
@@ -255,29 +279,4 @@ class PaymentController extends Controller
 
 
 
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

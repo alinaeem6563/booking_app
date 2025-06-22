@@ -1,192 +1,349 @@
 @extends('layouts.app')
 
 @section('content')
-    <div x-data="{ sidebarOpen: window.innerWidth >= 768 }" class="min-h-screen flex">
+<div x-data="{ 
+    sidebarOpen: false, 
+    sidebarCollapsed: window.innerWidth >= 768 ? false : true,
+    toggleSidebar() {
+        if (window.innerWidth >= 768) {
+            this.sidebarCollapsed = !this.sidebarCollapsed;
+        } else {
+            this.sidebarOpen = !this.sidebarOpen;
+        }
+    }
+}" 
+class="min-h-screen bg-gray-50"
+:class="sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'">
         @include('navigation.sidebar')
         <!-- Main Content -->
-        <div class="flex-1 p-4">
-            <!-- Top Header -->
-            @include('navigation.UserHeader')
+        <div class="main-content transition-all duration-300 ease-in-out md:ml-64" 
+             :class="sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'">
+             <!-- Top Header -->
+             @include('navigation.UserHeader')
 
-            <x-slot name="header">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        {{ __('Profile Settings') }}
-                    </h2>
-                    <div class="mt-3 md:mt-0 text-sm">
-                        <span class="text-gray-500">Last updated:</span>
-                        <span class="text-gray-700 ml-1">{{ auth()->user()->updated_at->diffForHumans() }}</span>
-                    </div>
-                </div>
-            </x-slot>
 
-            <div class="py-6 md:py-12">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <!-- Profile Navigation Tabs -->
-                    <div x-data="{ activeTab: 'profile' }" class="mb-6">
-                        <div class="bg-white shadow sm:rounded-lg overflow-hidden">
-                            <div class="border-b border-gray-200">
-                                <nav class="flex overflow-x-auto">
-                                    <button @click="activeTab = 'profile'"
-                                        :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'profile', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'profile' }"
-                                        class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm focus:outline-none">
-                                        <svg class="inline-block -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                        Profile Information
-                                    </button>
-                                    <button @click="activeTab = 'password'"
-                                        :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'password', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'password' }"
-                                        class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm focus:outline-none">
-                                        <svg class="inline-block -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                        Password
-                                    </button>
-                                    <button @click="activeTab = 'delete'"
-                                        :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'delete', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'delete' }"
-                                        class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm focus:outline-none">
-                                        <svg class="inline-block -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                        Delete Account
-                                    </button>
-                                </nav>
+            <!-- Dashboard Content -->
+            <div class="p-4 md:p-3 lg:p-3">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 md:p-8 text-white relative overflow-hidden  lg:p-8">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                                <svg class="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl lg:text-3xl font-bold text-white ">
+                                    {{ __('Profile Settings') }}
+                                </h1>
+                                <p class="text-white  mt-1">
+                                    {{ __('Manage your account settings and preferences') }}
+                                </p>
                             </div>
                         </div>
-
-                        <!-- Tab Content -->
-                        <div class="mt-6 space-y-6">
-                            <!-- Profile Information Tab -->
-                            <div x-show="activeTab === 'profile'" class="bg-white shadow sm:rounded-lg">
-                                <div class="p-4 sm:p-8">
-                                    <div class="max-w-xl mx-auto">
-                                        <div class="flex items-center justify-between mb-6">
-                                            <h3 class="text-lg font-medium text-gray-900">
-                                                {{ __('Profile Information') }}
-                                            </h3>
-                                            <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                                                {{ __('Active') }}
-                                            </span>
-                                        </div>
-
-                                        <p class="text-sm text-gray-600 mb-6">
-                                            {{ __("Update your account's profile information and email address.") }}
-                                        </p>
-
-                                        @include('profile.partials.update-profile-information-form')
-                                    </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                    <span class="text-sm font-medium text-emerald-700">{{ __('Account Active') }}</span>
                                 </div>
                             </div>
-
-                            <!-- Password Tab -->
-                            <div x-show="activeTab === 'password'" class="bg-white shadow sm:rounded-lg">
-                                <div class="p-4 sm:p-8">
-                                    <div class="max-w-xl mx-auto">
-                                        <div class="flex items-center justify-between mb-6">
-                                            <h3 class="text-lg font-medium text-gray-900">
-                                                {{ __('Update Password') }}
-                                            </h3>
-                                            <span class="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                                {{ __('Security') }}
-                                            </span>
-                                        </div>
-
-                                        <p class="text-sm text-gray-600 mb-6">
-                                            {{ __('Ensure your account is using a long, random password to stay secure.') }}
-                                        </p>
-
-                                        @include('profile.partials.update-password-form')
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Delete Account Tab -->
-                            <div x-show="activeTab === 'delete'" class="bg-white shadow sm:rounded-lg">
-                                <div class="p-4 sm:p-8">
-                                    <div class="max-w-xl mx-auto">
-                                        <div class="flex items-center justify-between mb-6">
-                                            <h3 class="text-lg font-medium text-gray-900">
-                                                {{ __('Delete Account') }}
-                                            </h3>
-                                            <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                                                {{ __('Danger Zone') }}
-                                            </span>
-                                        </div>
-
-                                        <p class="text-sm text-gray-600 mb-6">
-                                            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted.') }}
-                                        </p>
-
-                                        @include('profile.partials.delete-user-form')
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Activity Log -->
-                    <div class="bg-white shadow sm:rounded-lg overflow-hidden">
-                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ __('Recent Activity') }}
-                            </h3>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                                {{ __('Your recent account activity and security events.') }}
-                            </p>
-                        </div>
-                        <div class="px-4 py-5 sm:p-6">
-                            <div class="space-y-4">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3 w-0 flex-1">
-                                        <p class="text-sm font-medium text-gray-900">
-                                            {{ __('Successful login') }}
-                                        </p>
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            {{ __('Today at') }} {{ now()->format('h:i A') }} • {{ request()->ip() }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0">
-                                        <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3 w-0 flex-1">
-                                        <p class="text-sm font-medium text-gray-900">
-                                            {{ __('Profile information updated') }}
-                                        </p>
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            {{ auth()->user()->updated_at->diffForHumans() }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                    {{ __('View full activity log') }} →
-                                </a>
+                            <div class="text-sm text-white ">
+                                <span class="block lg:inline">{{ __('Last updated:') }}</span>
+                                <span class="font-medium text-white  block lg:inline lg:ml-1">
+                                    {{ auth()->user()->updated_at->diffForHumans() }}
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="max-w-6xl mx-auto">
+                <!-- Profile Navigation Tabs -->
+                <div x-data="{ activeTab: 'profile' }" class="space-y-6 mx-2">
+                    <!-- Modern Tab Navigation -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-2">
+                            <nav class="flex space-x-1 overflow-x-auto scrollbar-hide">
+                                <button @click="activeTab = 'profile'"
+                                    :class="{ 
+                                        'bg-indigo-500 text-white shadow-lg': activeTab === 'profile', 
+                                        'text-gray-600 hover:text-gray-900 hover:bg-gray-50': activeTab !== 'profile' 
+                                    }"
+                                    class="flex items-center space-x-2 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span>{{ __('Profile Information') }}</span>
+                                </button>
+                                
+                                <button @click="activeTab = 'password'"
+                                    :class="{ 
+                                        'bg-indigo-500 text-white shadow-lg': activeTab === 'password', 
+                                        'text-gray-600 hover:text-gray-900 hover:bg-gray-50': activeTab !== 'password' 
+                                    }"
+                                    class="flex items-center space-x-2 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                    <span>{{ __('Security') }}</span>
+                                </button>
+                                
+                                <button @click="activeTab = 'delete'"
+                                    :class="{ 
+                                        'bg-red-500 text-white shadow-lg': activeTab === 'delete', 
+                                        'text-gray-600 hover:text-gray-900 hover:bg-gray-50': activeTab !== 'delete' 
+                                    }"
+                                    class="flex items-center space-x-2 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    <span>{{ __('Danger Zone') }}</span>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        <!-- Main Content Area -->
+                        <div class="xl:col-span-2 space-y-6">
+                            <!-- Profile Information Tab -->
+                            <div x-show="activeTab === 'profile'" 
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform translate-y-4"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 class="bg-white rounded-2xl shadow-sm border border-gray-100">
+                                <div class="p-6 lg:p-8">
+                                    <div class="flex items-center space-x-3 mb-6">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-semibold text-gray-900">
+                                                {{ __('Profile Information') }}
+                                            </h3>
+                                            <p class="text-gray-600 text-sm">
+                                                {{ __("Update your account's profile information and email address.") }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    @include('profile.partials.update-profile-information-form')
+                                </div>
+                            </div>
+
+                            <!-- Password Tab -->
+                            <div x-show="activeTab === 'password'" 
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform translate-y-4"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 class="bg-white rounded-2xl shadow-sm border border-gray-100">
+                                <div class="p-6 lg:p-8">
+                                    <div class="flex items-center space-x-3 mb-6">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-semibold text-gray-900">
+                                                {{ __('Update Password') }}
+                                            </h3>
+                                            <p class="text-gray-600 text-sm">
+                                                {{ __('Ensure your account is using a long, random password to stay secure.') }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    @include('profile.partials.update-password-form')
+                                </div>
+                            </div>
+
+                            <!-- Delete Account Tab -->
+                            <div x-show="activeTab === 'delete'" 
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform translate-y-4"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 class="bg-white rounded-2xl shadow-sm border border-gray-100">
+                                <div class="p-6 lg:p-8">
+                                    <div class="flex items-center space-x-3 mb-6">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-semibold text-gray-900">
+                                                {{ __('Delete Account') }}
+                                            </h3>
+                                            <p class="text-gray-600 text-sm">
+                                                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted.') }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Warning Alert -->
+                                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                                        <div class="flex items-start space-x-3">
+                                            <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            </svg>
+                                            <div>
+                                                <h4 class="font-medium text-red-800">{{ __('Warning') }}</h4>
+                                                <p class="text-sm text-red-700 mt-1">
+                                                    {{ __('This action cannot be undone. All your data will be permanently removed from our servers.') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @include('profile.partials.delete-user-form')
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Content -->
+                        <div class="space-y-6">
+                            <!-- Quick Stats -->
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                    {{ __('Account Overview') }}
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">{{ __('Member since') }}</span>
+                                        <span class="text-sm font-medium text-gray-900">
+                                            {{ auth()->user()->created_at->format('M Y') }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">{{ __('Account type') }}</span>
+                                        <span class="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-lg">
+                                            {{ ucfirst(auth()->user()->account_type ?? 'User') }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">{{ __('Email verified') }}</span>
+                                        @if(auth()->user()->email_verified_at)
+                                            <span class="flex items-center text-sm text-emerald-600">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {{ __('Verified') }}
+                                            </span>
+                                        @else
+                                            <span class="flex items-center text-sm text-amber-600">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                                </svg>
+                                                {{ __('Pending') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity -->
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        {{ __('Recent Activity') }}
+                                    </h3>
+                                    <button class="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                                        {{ __('View all') }}
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900">
+                                                {{ __('Successful login') }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                {{ __('Today at') }} {{ now()->format('h:i A') }}
+                                            </p>
+                                            <p class="text-xs text-gray-400">
+                                                {{ request()->ip() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900">
+                                                {{ __('Profile updated') }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                {{ auth()->user()->updated_at->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Tips -->
+                            <div class="bg-gradient-to-br from-indigo-50 to-indigo-50 rounded-2xl border border-indigo-100 p-6">
+                                <div class="flex items-center space-x-3 mb-4">
+                                    <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        {{ __('Security Tips') }}
+                                    </h3>
+                                </div>
+                                
+                                <div class="space-y-3 text-sm text-gray-700">
+                                    <div class="flex items-start space-x-2">
+                                        <svg class="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>{{ __('Use a strong, unique password') }}</span>
+                                    </div>
+                                    <div class="flex items-start space-x-2">
+                                        <svg class="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>{{ __('Keep your email address up to date') }}</span>
+                                    </div>
+                                    <div class="flex items-start space-x-2">
+                                        <svg class="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span>{{ __('Review your account activity regularly') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    @endsection
+    </div>
+
+    <style>
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+@endsection

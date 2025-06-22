@@ -238,11 +238,17 @@
                     closeModalBtn.addEventListener('click', closeModal);
                     cancelBtn.addEventListener('click', closeModal);
 
-                    // Example action for confirm button
                     confirmBtn.addEventListener('click', () => {
-                        alert('Confirmed!');
-                        closeModal();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Confirmed!',
+                            text: 'Your action has been successfully confirmed.',
+                            confirmButtonColor: '#4338CA',
+                        }).then(() => {
+                            closeModal();
+                        });
                     });
+
 
                     // Close modal when clicking outside
                     modalOverlay.addEventListener('click', (e) => {
@@ -307,42 +313,42 @@
                         }
                     });
                 </script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const providerSelect = document.getElementById('provider_id');
-    const serviceSelect = document.getElementById('service_id');
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const providerSelect = document.getElementById('provider_id');
+                        const serviceSelect = document.getElementById('service_id');
 
-    providerSelect.addEventListener('change', function () {
-        const providerId = this.value;
-        serviceSelect.innerHTML = '<option value="">Loading...</option>';
+                        providerSelect.addEventListener('change', function() {
+                            const providerId = this.value;
+                            serviceSelect.innerHTML = '<option value="">Loading...</option>';
 
-        if (!providerId) {
-            serviceSelect.innerHTML = '<option value="">Select Service</option>';
-            return;
-        }
+                            if (!providerId) {
+                                serviceSelect.innerHTML = '<option value="">Select Service</option>';
+                                return;
+                            }
 
-        fetch(`/providers/${providerId}/services`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                serviceSelect.innerHTML = '<option value="">Select Service</option>';
-                data.forEach(service => {
-                    const option = document.createElement('option');
-                    option.value = service.id;
-                    option.textContent = `${service.service_name} (${service.service_duration} hours)`;
-                    option.setAttribute('data-duration', service.duration);
-                    serviceSelect.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching services:', error);
-                serviceSelect.innerHTML = '<option value="">Error loading services</option>';
-            });
-    });
-});
-
-</script>
+                            fetch(`/providers/${providerId}/services`)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    serviceSelect.innerHTML = '<option value="">Select Service</option>';
+                                    data.forEach(service => {
+                                        const option = document.createElement('option');
+                                        option.value = service.id;
+                                        option.textContent =
+                                            `${service.service_name} (${service.service_duration} hours)`;
+                                        option.setAttribute('data-duration', service.duration);
+                                        serviceSelect.appendChild(option);
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching services:', error);
+                                    serviceSelect.innerHTML = '<option value="">Error loading services</option>';
+                                });
+                        });
+                    });
+                </script>

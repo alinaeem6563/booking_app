@@ -25,8 +25,7 @@ class SavedProviderController extends Controller
             if (!$userId) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
-
-            $savedServices = SavedProvider::with(['service.category', 'service.provider.review'])
+            $savedServices = SavedProvider::with(['service.category', 'service.reviews', 'service.provider'])
                 ->where('user_id', $userId)
                 ->get()
                 ->filter(fn($saved) => $saved->service && $saved->service->provider)
@@ -35,14 +34,15 @@ class SavedProviderController extends Controller
                     $provider = $service->provider;
                     $categoryId = $service->category->id ?? null;
 
+
                     return [
                         'id' => $saved->id,
                         'service_id' => $service->id,
                         'name' => $provider->first_name . ' ' . $provider->last_name,
                         'service_name' => $service->service_name,
                         'image' => $service->service_image ? asset('storage/' . $service->service_image) : null,
-                        'rating' => number_format($provider->review->avg('rating') ?? 0, 1),
-                        'review_count' => $provider->review->count() ?? 0,
+                        'rating' => number_format($service->reviews->avg('rating') ?? 0, 1),
+                        'review_count' => $service->reviews->count() ?? 0,
                         'verified' => true,
                         'hourly_rate' => $service->service_price,
                         'response_time' => 'Responds within 1 hour',

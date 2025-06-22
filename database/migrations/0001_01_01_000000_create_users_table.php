@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('phone')->unique();
             $table->string('password');
             $table->string('account_type'); // e.g. user, provider, Admin
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('profile_photo_url')->nullable();
             $table->boolean('terms_condition')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

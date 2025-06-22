@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('additional_services')->nullable();
             $table->decimal('total_amount', 8, 2);
             $table->longText('special_instruction')->nullable();
-            $table->enum('status', ['pending', 'confirmed', 'canceled','completed'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'canceled','completed', 'disputed'])->default('pending');
             $table->enum('payment_status', ['pending', 'confirmed'])->default('pending');
             $table->timestamps();
         });

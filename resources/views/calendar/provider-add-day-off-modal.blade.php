@@ -27,7 +27,7 @@
                    <div class="p-6 max-h-[60vh] overflow-y-auto">
 
                        <!-- You can add your day off form here -->
-                       <form action="{{route('days-off')}}" method="POST" id="daysOffForm">
+                       <form action="{{ route('days-off') }}" method="POST" id="daysOffForm">
                            @csrf
                            <div class="px-4 py-5 sm:p-6">
                                @if ($errors->any())
@@ -61,7 +61,8 @@
                                    <!-- Provider Selection -->
                                    <div class="">
                                        <div class="mt-1">
-                                           <input type="hidden" id="provider_id" name="provider_id" value="{{auth()->user()->id}}"/>
+                                           <input type="hidden" id="provider_id" name="provider_id"
+                                               value="{{ auth()->user()->id }}" />
                                        </div>
                                        @error('provider_id')
                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -225,11 +226,22 @@
                    const reason = document.getElementById('dayOffReason').value;
 
                    if (!date || !reason) {
-                       alert('Please fill in all required fields');
+                       Swal.fire({
+                           icon: 'warning',
+                           title: 'Missing Fields',
+                           text: 'Please fill in all required fields.',
+                           confirmButtonColor: '#4338CA',
+                       });
                        return;
                    }
 
-                   alert(`Day off request submitted for ${date}`);
+                   Swal.fire({
+                       icon: 'success',
+                       title: 'Submitted!',
+                       text: `Day off request submitted for ${date}`,
+                       confirmButtonColor: '#4338CA',
+                   });
+
                    closeAddDayOffModal();
                });
 
@@ -282,27 +294,46 @@
                        let isValid = true;
 
                        // Check if provider is selected
-                    //    if (!document.getElementById('provider_id').value) {
-                    //        isValid = false;
-                    //        alert('Please select a provider');
-                    //    }
+                       //    if (!document.getElementById('provider_id').value) {
+                       //        isValid = false;
+                       //        alert('Please select a provider');
+                       //    }
 
                        // Check if type is selected
                        if (!typeWeekly.checked && !typeDate.checked) {
                            isValid = false;
-                           alert('Please select a type of day off');
+                           Swal.fire({
+                               icon: 'warning',
+                               title: 'Missing Selection',
+                               text: 'Please select a type of day off.',
+                               confirmButtonColor: '#4338CA',
+                           });
+                           return; // Prevents continuing further
                        }
 
                        // Check if day name is selected for weekly type
                        if (typeWeekly.checked && !dayNameInput.value) {
                            isValid = false;
-                           alert('Please select a day of the week');
+                           Swal.fire({
+                               icon: 'warning',
+                               title: 'Missing Day',
+                               text: 'Please select a day of the week.',
+                               confirmButtonColor: '#4338CA',
+                           });
+                           return;
                        }
+
 
                        // Check if date is selected for date type
                        if (typeDate.checked && !offDateInput.value) {
                            isValid = false;
-                           alert('Please select a specific date');
+                           Swal.fire({
+                               icon: 'warning',
+                               title: 'Missing Date',
+                               text: 'Please select a specific date.',
+                               confirmButtonColor: '#4338CA',
+                           });
+
                        }
 
                        if (!isValid) {

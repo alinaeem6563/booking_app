@@ -41,7 +41,7 @@
     @include('navigation.Header')
 
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+    <section class="relative bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
         <div class="container mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8 relative z-10">
             <div class="max-w-3xl">
                 <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
@@ -187,9 +187,9 @@
 
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800
-    @if ($recommendedService->availability_status === 'Available') bg-green-100 text-green-800
-    @elseif($recommendedService->availability_status === 'Fully Booked') bg-red-100 text-red-800
-    @else bg-gray-100 text-gray-800 @endif">
+                                    @if ($recommendedService->availability_status === 'Available') bg-green-100 text-green-800
+                                    @elseif($recommendedService->availability_status === 'Fully Booked') bg-red-100 text-red-800
+                                    @else bg-gray-100 text-gray-800 @endif">
                                     {{ $recommendedService->availability_status }}
                                 </span>
 
